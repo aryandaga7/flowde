@@ -5,13 +5,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from core.config import DATABASE_URL
 
-# Define the connection string to your PostgreSQL database.
-# Replace 'your_user' and 'your_password' with your actual credentials,
-# and ensure 'assignment_bot' is the database you created.
+import socket
+orig_getaddrinfo = socket.getaddrinfo
+def force_ipv4_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+    return orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
+socket.getaddrinfo = force_ipv4_getaddrinfo
+
 DATABASE_URL = DATABASE_URL
 
-# Create the SQLAlchemy engine. This is the starting point for any database operations.
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
 
 # Create a configured "Session" class.
 # Sessions are used to interact with the database (e.g., execute queries, insert data).
