@@ -5,6 +5,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 import json
+import asyncio
 
 # Import models and dependencies
 from models.models import ChatMessage, Assignment, Step, User, Connection
@@ -13,6 +14,8 @@ from auth.auth_dependencies import get_current_user
 from services.gpt_workflow import generate_assignment_workflow
 from services.gpt_chat import (generate_assignment_chat_response, generate_node_chat_response)
 from services.deep_dive import generate_deep_dive_breakdown
+from utils.node_operations import create_node
+
 
 router = APIRouter()
 
@@ -100,7 +103,7 @@ def get_node_chat(node_id: int, db: Session = Depends(get_db), current_user: Use
 # then stores the user query and GPT response in the DB.
 # ------------------------------------------------
 @router.post("/chat", response_model=ChatMessageResponse)
-def post_chat_message(chat: ChatMessageCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def post_chat_message(chat: ChatMessageCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Verify assignment ownership.
     assignment = db.query(Assignment).filter(
         Assignment.id == chat.assignment_id, 
@@ -118,7 +121,7 @@ def post_chat_message(chat: ChatMessageCreate, db: Session = Depends(get_db), cu
                 ChatMessage.step_id.is_(None)
             ).order_by(ChatMessage.timestamp.desc()).limit(5).all()
             # Assignment-level chat.
-            bot_response = generate_assignment_chat_response(
+            bot_response = await generate_assignment_chat_response(
                 chat.user_message, 
                 assignment_title=assignment.title, 
                 assignment_description=assignment.description,
@@ -133,7 +136,7 @@ def post_chat_message(chat: ChatMessageCreate, db: Session = Depends(get_db), cu
             recent_node_messages = db.query(ChatMessage).filter(
                 ChatMessage.step_id == chat.step_id
             ).order_by(ChatMessage.timestamp.desc()).limit(5).all()
-            bot_response = generate_node_chat_response(
+            bot_response = await generate_node_chat_response(
                 chat.user_message, 
                 assignment_title=assignment.title, 
                 assignment_description=assignment.description,
@@ -164,7 +167,7 @@ class DeepDiveRequest(BaseModel):
 
 
 @router.post("/chat/deepdive/{node_id}", response_model=DeepDiveResponse)
-def deep_dive_node(node_id: int, request: DeepDiveRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def deep_dive_node(node_id: int, request: DeepDiveRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Verify node exists and belongs to current user
     node = db.query(Step).filter(Step.id == node_id).first()
     if not node or node.assignment.user_id != current_user.id:
@@ -176,14 +179,14 @@ def deep_dive_node(node_id: int, request: DeepDiveRequest, db: Session = Depends
     node_context = f"Assignment: {assignment.title}\nDescription: {assignment.description}\nNode Content: {node.content}\n"
     node_context += f"\nUser Deep Dive Question: {request.question}\n"
     
-    breakdown = generate_deep_dive_breakdown(node_context, extra_context=request.question)
+    breakdown = await generate_deep_dive_breakdown(node_context, extra_context=request.question)
     if not breakdown:
         raise HTTPException(status_code=500, detail="Deep dive breakdown failed")
     
     breakdown_steps = breakdown["new_steps"]
     created_steps = []
-    prev_step = None
-
+    reference_node_id = node.id  # Start with the original node as reference
+    
     for idx, substep in enumerate(breakdown_steps):
         content = substep.get("content", "")
         
@@ -191,110 +194,27 @@ def deep_dive_node(node_id: int, request: DeepDiveRequest, db: Session = Depends
         if node.parent_id is None:  # Parent node
             if idx == 0:
                 insertion_type = "new_step"
-                reference_node_id = node.id
             else:
                 insertion_type = "after"
-                reference_node_id = prev_step.id
         else:  # Child node
             if idx == 0:
                 insertion_type = "substep"
-                reference_node_id = node.id
             else:
                 insertion_type = "after"
-                reference_node_id = prev_step.id
-
-        # Create new step with calculated position
-        new_step = Step(
+        
+        # Use the shared utility function
+        new_step = create_node(
+            db=db,
+            current_user=current_user,
             assignment_id=node.assignment_id,
             content=content,
-            parent_id=None,
-            position_x=0,
-            position_y=0,
-            completed=False
+            reference_node_id=reference_node_id,
+            insertion_type=insertion_type
         )
-        db.add(new_step)
-        db.flush()  # Generate ID
-
-        # Calculate position based on insertion type
-        ref_node = db.query(Step).filter(Step.id == reference_node_id).first()
-        if not ref_node:
-            continue
-
-        if insertion_type == "new_step":
-            # Add to right of parent as new main step
-            new_step.position_x = ref_node.position_x + 250
-            new_step.position_y = ref_node.position_y
-        elif insertion_type == "substep":
-            # Add as child below parent
-            new_step.parent_id = ref_node.id
-            new_step.position_x = ref_node.position_x + 150
-            new_step.position_y = ref_node.position_y
-        elif insertion_type == "after":
-            # Add below previous step
-            new_step.parent_id = ref_node.parent_id
-            new_step.position_x = ref_node.position_x
-            new_step.position_y = ref_node.position_y + 80
-
-        # Update step with calculated position
-        db.add(new_step)
-        db.flush()
-
-        # Create connections
-        if insertion_type == "new_step":
-            # Connect original node to new step
-            db.add(Connection(
-                assignment_id=assignment.id,
-                from_step=ref_node.id,
-                to_step=new_step.id
-            ))
-            
-            # Connect new step to next main step if exists
-            next_main = db.query(Connection).filter(
-                Connection.from_step == ref_node.id,
-                Step.parent_id.is_(None)
-            ).join(Step, Connection.to_step == Step.id).first()
-            
-            if next_main:
-                db.add(Connection(
-                    assignment_id=assignment.id,
-                    from_step=new_step.id,
-                    to_step=next_main.to_step
-                ))
-                db.delete(next_main)
-
-        elif insertion_type == "substep":
-            # Connect parent to new substep
-            db.add(Connection(
-                assignment_id=assignment.id,
-                from_step=ref_node.id,
-                to_step=new_step.id
-            ))
-
-        elif insertion_type == "after":
-            # Re-wire connections
-            outgoing = db.query(Connection).filter(
-                Connection.from_step == ref_node.id
-            ).first()
-            
-            if outgoing:
-                db.add(Connection(
-                    assignment_id=assignment.id,
-                    from_step=new_step.id,
-                    to_step=outgoing.to_step
-                ))
-                db.delete(outgoing)
-            
-            db.add(Connection(
-                assignment_id=assignment.id,
-                from_step=ref_node.id,
-                to_step=new_step.id
-            ))
-
+        
         created_steps.append(new_step)
-        prev_step = new_step
-
-    db.commit()
-
+        reference_node_id = new_step.id  # Update reference for next iteration
+    
     # Store chat message
     new_chat = ChatMessage(
         assignment_id=node.assignment_id,
@@ -306,5 +226,6 @@ def deep_dive_node(node_id: int, request: DeepDiveRequest, db: Session = Depends
     db.add(new_chat)
     db.commit()
 
+    # Convert to response model
     breakdown_steps = [StepModel.from_orm(step) for step in created_steps]
     return DeepDiveResponse(breakdown_steps=breakdown_steps)

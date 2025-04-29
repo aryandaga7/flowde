@@ -2,12 +2,18 @@ import openai
 import os
 import json
 import re
+import asyncio
 from core.config import OPENAI_API_KEY
 
-# Set your OpenAI API key from an environment variable for security.
-openai.api_key = OPENAI_API_KEY
+from openai import AsyncOpenAI
+from services.embedder import chunk_text
+from services.rag_retriever import retrieve_relevant_chunks
+from core.database import SessionLocal
 
-def generate_assignment_workflow(assignment_input: str) -> dict:
+openai.api_key = OPENAI_API_KEY
+client = AsyncOpenAI(api_key=openai.api_key)
+
+async def generate_assignment_workflow(assignment_input: str) -> dict:
     """
     Sends a prompt to GPT-4 to extract and structure assignment details.
     
@@ -23,7 +29,20 @@ def generate_assignment_workflow(assignment_input: str) -> dict:
     Returns:
       dict: Parsed JSON data with the assignment workflow, or None if parsing fails.
     """
-    
+    embedding_response = await client.embeddings.create(
+        model="text-embedding-ada-002",
+        input=assignment_input
+    )
+    query_embedding = embedding_response.data[0].embedding
+
+    # Retrieve top relevant document chunks
+    db = SessionLocal()
+    retrieved_chunks = retrieve_relevant_chunks(query_embedding, db)
+    if not retrieved_chunks:
+        rag_context = "No relevant course notes found."
+    else:
+        rag_context = "\n\n".join(retrieved_chunks)
+    db.close()
     # Construct prompt messages
     messages = [
         {
@@ -34,6 +53,7 @@ def generate_assignment_workflow(assignment_input: str) -> dict:
                 "'title', 'due_date' (if available, otherwise null), 'description', and 'steps'. "
                 "The 'steps' should be an array of objects. Each step object must include an 'id', 'content', "
                 "and include a 'substeps' array (with each substep having an 'id' and 'content')."
+                f"Relevant Class Notes:\n{rag_context}"
             )
         },
         {
@@ -47,7 +67,7 @@ def generate_assignment_workflow(assignment_input: str) -> dict:
     
     try:
         # Call GPT-4 API using the ChatCompletion endpoint
-        response = openai.chat.completions.create(
+        response = await client.chat.completions.create(
             model="gpt-4o-mini",  # Replace with your intended model if needed
             messages=messages,
             temperature=0.6,

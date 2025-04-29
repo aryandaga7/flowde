@@ -3,11 +3,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from core.config import DATABASE_URL
 
 # Define the connection string to your PostgreSQL database.
 # Replace 'your_user' and 'your_password' with your actual credentials,
 # and ensure 'assignment_bot' is the database you created.
-DATABASE_URL = "postgresql://aryandaga:3119@localhost/assignment_bot"
+DATABASE_URL = DATABASE_URL
 
 # Create the SQLAlchemy engine. This is the starting point for any database operations.
 engine = create_engine(DATABASE_URL)

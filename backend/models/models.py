@@ -4,6 +4,18 @@ import datetime
 from sqlalchemy import Column, Integer, String, Boolean, Float, Text, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship
 from core.database import Base  # Import the Base from database.py
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Text
+from pgvector.sqlalchemy import Vector
+from sqlalchemy.sql import text
+
+class DocumentChunk(Base):
+    __tablename__ = "document_chunks"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
+    content = Column(Text)
+    embedding = Column(Vector(1536))
+    source = Column(Text)
 
 # ---------------------
 # User Model
@@ -11,12 +23,12 @@ from core.database import Base  # Import the Base from database.py
 class User(Base):
     __tablename__ = "users"
     
-    # Unique identifier for the user.
     id = Column(Integer, primary_key=True, index=True)
-    # User's email address (must be unique).
     email = Column(String, unique=True, nullable=False)
-    # Hashed password for security.
-    password_hash = Column(String, nullable=False)
+    password_hash = Column(String, nullable=True)
+    first_name = Column(String, nullable=True) 
+    last_name = Column(String, nullable=True)
+    auth_provider = Column(String, default="email", nullable=False)  
     
     # Relationship: a user can have multiple assignments.
     assignments = relationship("Assignment", back_populates="owner", cascade="all, delete-orphan")

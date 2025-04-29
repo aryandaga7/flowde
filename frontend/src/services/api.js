@@ -11,6 +11,34 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+export const googleLogin = async (token) => {
+  try {
+    const formData = new FormData();
+    formData.append('token', token);
+    
+    const response = await axios.post(`${API_BASE_URL}/google-login`, formData);
+    localStorage.setItem('access_token', response.data.access_token);
+    return response.data;
+  } catch (error) {
+    console.error('Error with Google login:', error);
+    throw error;
+  }
+};
+
+// Add forgot password function
+export const forgotPassword = async (email) => {
+  try {
+    const formData = new FormData();
+    formData.append('email', email);
+    
+    const response = await axios.post(`${API_BASE_URL}/forgot-password`, formData);
+    return response.data;
+  } catch (error) {
+    console.error('Error with forgot password:', error);
+    throw error;
+  }
+};
+
 export const getUserAssignments = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/user/assignments`, {
@@ -117,7 +145,6 @@ export const addNewNode = async (assignmentId, content, referenceNodeId, x, y, i
   }
 };
 
-
 export const updateNodeContent = async (nodeId, content) => {
   try {
     await axios.patch(`${API_BASE_URL}/steps/${nodeId}`, 
@@ -126,6 +153,24 @@ export const updateNodeContent = async (nodeId, content) => {
     );
   } catch (error) {
     console.error('Error updating node content:', error);
+    throw error;
+  }
+};
+
+// New function to add a connection between nodes
+export const addConnection = async (assignmentId, fromNodeId, toNodeId) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/connections`,
+      {
+        assignment_id: assignmentId,
+        from_step: fromNodeId,
+        to_step: toNodeId
+      },
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error adding connection:', error);
     throw error;
   }
 };
@@ -165,3 +210,29 @@ export const postChatMessage = async (payload) => {
     throw error;
   }
 };
+
+export const getCurrentUser = async () => {
+  const response = await axios.get(`${API_BASE_URL}/me`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+  });
+  return response.data;
+};
+
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    // Check if error is due to unauthorized (401)
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      // Clear localStorage
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('selectedAssignment');
+      localStorage.removeItem('assignmentId');
+      localStorage.removeItem('chatState');
+      
+      // Redirect to login (you may need to use a different approach depending on your router)
+      window.location.href = '/'; // Or wherever your login page is
+    }
+    
+    return Promise.reject(error);
+  }
+);

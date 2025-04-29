@@ -7,6 +7,7 @@ from models.models import Assignment, Step, Connection, User
 from services.gpt_workflow import generate_assignment_workflow
 from datetime import datetime
 import uvicorn
+import asyncio
 
 # Import routers
 from routes.assignment_routes import router as assignment_router
@@ -14,6 +15,7 @@ from routes.auth_routes import router as auth_router
 from routes.dashboard_routes import router as dashboard_router
 from routes.node_routes import router as node_router
 from routes.chat_routes import router as chat_router
+from routes.connection_routes import router as connection_router  # Import new connection router
 
 # Import current user dependency
 from auth.auth_dependencies import get_current_user
@@ -38,6 +40,7 @@ app.include_router(auth_router)
 app.include_router(dashboard_router)
 app.include_router(node_router)
 app.include_router(chat_router)
+app.include_router(connection_router)  # Add the new connection router
 
 
 # Pydantic model for assignment creation.
@@ -53,14 +56,14 @@ def get_db():
         db.close()
 
 @app.post("/create-assignment")
-def create_assignment(
+async def create_assignment(
     request: AssignmentRequest, 
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_user)
 ):
     try:
         # Generate a workflow from GPT.
-        workflow = generate_assignment_workflow(request.assignment_input)
+        workflow = await generate_assignment_workflow(request.assignment_input)
         if not workflow:
             raise HTTPException(status_code=500, detail="Failed to generate assignment workflow from GPT.")
         

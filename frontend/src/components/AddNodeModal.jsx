@@ -51,6 +51,7 @@ const AddNodeModal = ({ isOpen, onClose, onSubmit, initialPosition }) => {
   );
 };
 
+// Updated styles for AddNodeModal.jsx
 const styles = {
   overlay: {
     position: 'fixed',
@@ -63,17 +64,20 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
-    backdropFilter: 'blur(2px)'
+    backdropFilter: 'blur(2px)',
+    animation: 'fadeIn 0.2s ease'
   },
   modal: {
     backgroundColor: 'white',
-    borderRadius: '12px',
+    borderRadius: 'var(--border-radius-lg)',
     width: '400px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+    boxShadow: 'var(--shadow-lg)',
+    animation: 'slideInUp 0.3s ease',
+    overflow: 'hidden'
   },
   header: {
     padding: '20px',
-    borderBottom: '1px solid #f0f4f9',
+    borderBottom: '1px solid var(--neutral-200)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -81,19 +85,21 @@ const styles = {
   title: {
     margin: 0,
     fontSize: '18px',
-    color: '#0f172a',
-    fontWeight: 600
+    color: 'var(--neutral-900)',
+    fontWeight: 600,
+    fontFamily: 'var(--font-family)'
   },
   closeButton: {
     background: 'none',
     border: 'none',
-    color: '#64748b',
+    color: 'var(--neutral-500)',
     cursor: 'pointer',
     padding: '4px',
-    borderRadius: '4px',
-    ':hover': {
-      backgroundColor: '#f8fafc'
-    }
+    borderRadius: 'var(--border-radius-sm)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease'
   },
   content: {
     padding: '20px'
@@ -101,63 +107,65 @@ const styles = {
   label: {
     display: 'block',
     marginBottom: '8px',
-    color: '#64748b',
-    fontSize: '14px'
+    color: 'var(--neutral-500)',
+    fontSize: '14px',
+    fontWeight: 500
   },
   textarea: {
     width: '100%',
-    height: '100px',
+    height: '120px',
     padding: '12px',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    border: '1px solid var(--neutral-200)',
+    borderRadius: 'var(--border-radius-md)',
     fontSize: '14px',
     marginBottom: '16px',
     resize: 'vertical',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#3b82f6',
-      boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.1)'
-    }
+    fontFamily: 'var(--font-family)',
+    transition: 'all 0.2s ease',
+    backgroundColor: 'var(--neutral-50)'
   },
   positionInfo: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    color: '#94a3b8',
-    fontSize: '12px'
+    color: 'var(--neutral-400)',
+    fontSize: '12px',
+    padding: '8px 12px',
+    backgroundColor: 'var(--neutral-50)',
+    borderRadius: 'var(--border-radius-md)',
+    border: '1px solid var(--neutral-200)'
   },
   footer: {
     padding: '20px',
-    borderTop: '1px solid #f0f4f9',
+    borderTop: '1px solid var(--neutral-200)',
     display: 'flex',
     gap: '12px',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    backgroundColor: 'var(--neutral-50)'
   },
   primaryButton: {
     padding: '10px 20px',
-    backgroundColor: '#3b82f6',
+    backgroundColor: 'var(--primary-600)',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: 'var(--border-radius-md)',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: 500,
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#2563eb'
-    }
+    fontFamily: 'var(--font-family)'
   },
   secondaryButton: {
     padding: '10px 20px',
-    backgroundColor: '#f8fafc',
-    color: '#64748b',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    backgroundColor: 'white',
+    color: 'var(--neutral-600)',
+    border: '1px solid var(--neutral-200)',
+    borderRadius: 'var(--border-radius-md)',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: 500,
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f0f4f9'
-    }
+    fontFamily: 'var(--font-family)'
   }
 };
 

@@ -45,47 +45,54 @@ const NodeEditorModal = ({
         </div>
 
         <div style={styles.actions}>
-          <button 
-            onClick={() => onUpdateContent(content)}
-            style={styles.primaryButton}
-          >
-            <FiCheck size={16} />
-            Save Changes
+        <button 
+          onClick={() => onUpdateContent(content)}
+          style={styles.primaryButton}
+        >
+          <FiCheck size={16} />
+          Save Changes
+        </button>
+        
+        <div style={styles.divider}></div>
+        
+        <div style={styles.buttonGroup}>
+          <button onClick={onToggleComplete} style={styles.secondaryButton}>
+            {nodeData.completed ? 'Mark Incomplete' : 'Mark Complete'}
           </button>
-          
-          <div style={styles.buttonGroup}>
-            <button onClick={onToggleComplete} style={styles.secondaryButton}>
-              {nodeData.completed ? 'Mark Incomplete' : 'Mark Complete'}
-            </button>
-            <button onClick={onOpenChat} style={styles.chatButton}>
-              <FiMessageSquare size={16} />
-              Chat
-            </button>
-          </div>
-
-          <div style={styles.buttonGroup}>
-            {nodeData.parent_id === null ? (
-              <>
-                <button onClick={onAddAfter} style={styles.secondaryButton}>Add After</button>
-                <button onClick={onAddNewStep} style={styles.secondaryButton}>New Main Step</button>
-              </>
-            ) : (
-              <>
-                <button onClick={onAddAfter} style={styles.secondaryButton}>Add After</button>
-                <button onClick={onAddSubstep} style={styles.secondaryButton}>Add Substep</button>
-              </>
-            )}
-          </div>
-
-          <button onClick={onDelete} style={styles.dangerButton}>
-            Delete Step
+          <button onClick={onOpenChat} style={styles.chatButton}>
+            <FiMessageSquare size={16} />
+            Chat
           </button>
         </div>
+
+        <div style={styles.divider}></div>
+        
+        <div style={styles.buttonGroup}>
+          {nodeData.parent_id === null ? (
+            <>
+              <button onClick={onAddAfter} style={styles.secondaryButton}>Add After</button>
+              <button onClick={onAddNewStep} style={styles.secondaryButton}>New Main Step</button>
+            </>
+          ) : (
+            <>
+              <button onClick={onAddAfter} style={styles.secondaryButton}>Add After</button>
+              <button onClick={onAddSubstep} style={styles.secondaryButton}>Add Substep</button>
+            </>
+          )}
+        </div>
+
+        <div style={styles.divider}></div>
+        
+        <button onClick={onDelete} style={styles.dangerButton}>
+          Delete Step
+        </button>
+      </div>
       </div>
     </div>
   );
 };
 
+// Updated styles for NodeEditorModal.jsx
 const styles = {
   overlay: {
     position: 'fixed',
@@ -98,37 +105,43 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
-    backdropFilter: 'blur(2px)'
+    backdropFilter: 'blur(2px)',
+    animation: 'fadeIn 0.2s ease'
   },
   modal: {
     backgroundColor: 'white',
-    borderRadius: '12px',
-    width: '400px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+    borderRadius: 'var(--border-radius-lg)',
+    width: '420px',
+    boxShadow: 'var(--shadow-lg)',
+    animation: 'slideInUp 0.3s ease',
+    overflow: 'hidden'
   },
   header: {
     padding: '20px',
-    borderBottom: '1px solid #f0f4f9',
+    borderBottom: '1px solid var(--neutral-200)',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: 'var(--neutral-50)'
   },
   title: {
     margin: 0,
     fontSize: '18px',
-    color: '#0f172a',
-    fontWeight: 600
+    color: 'var(--neutral-900)',
+    fontWeight: 600,
+    fontFamily: 'var(--font-family)'
   },
   closeButton: {
     background: 'none',
     border: 'none',
-    color: '#64748b',
+    color: 'var(--neutral-500)',
     cursor: 'pointer',
     padding: '4px',
-    borderRadius: '4px',
-    ':hover': {
-      backgroundColor: '#f8fafc'
-    }
+    borderRadius: 'var(--border-radius-sm)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease'
   },
   content: {
     padding: '20px'
@@ -136,93 +149,95 @@ const styles = {
   label: {
     display: 'block',
     marginBottom: '8px',
-    color: '#64748b',
-    fontSize: '14px'
+    color: 'var(--neutral-500)',
+    fontSize: '14px',
+    fontWeight: 500
   },
   textarea: {
     width: '100%',
-    height: '100px',
+    height: '120px',
     padding: '12px',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    border: '1px solid var(--neutral-200)',
+    borderRadius: 'var(--border-radius-md)',
     fontSize: '14px',
     marginBottom: '16px',
     resize: 'vertical',
-    ':focus': {
-      outline: 'none',
-      borderColor: '#3b82f6',
-      boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.1)'
-    }
+    fontFamily: 'var(--font-family)',
+    backgroundColor: 'var(--neutral-50)',
+    transition: 'all 0.2s ease',
+    outline: 'none'
   },
   actions: {
     padding: '20px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px'
+    gap: '16px',
+    borderTop: '1px solid var(--neutral-200)'
   },
   primaryButton: {
     padding: '12px 20px',
-    backgroundColor: '#3b82f6',
+    backgroundColor: 'var(--primary-600)',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: 'var(--border-radius-md)',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: 500,
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
     justifyContent: 'center',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#2563eb'
-    }
+    fontFamily: 'var(--font-family)'
   },
   secondaryButton: {
     padding: '10px 16px',
-    backgroundColor: '#f8fafc',
-    color: '#64748b',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
+    backgroundColor: 'white',
+    color: 'var(--neutral-600)',
+    border: '1px solid var(--neutral-200)',
+    borderRadius: 'var(--border-radius-md)',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: 500,
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f0f4f9'
-    }
+    fontFamily: 'var(--font-family)'
   },
   chatButton: {
     padding: '10px 16px',
-    backgroundColor: '#e0f2fe',
-    color: '#0369a1',
-    border: '1px solid #bae6fd',
-    borderRadius: '8px',
+    backgroundColor: 'var(--primary-100)',
+    color: 'var(--primary-700)',
+    border: '1px solid var(--primary-200)',
+    borderRadius: 'var(--border-radius-md)',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: 500,
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#bae6fd'
-    }
+    fontFamily: 'var(--font-family)'
   },
   dangerButton: {
     padding: '12px 20px',
-    backgroundColor: '#fee2e2',
-    color: '#dc2626',
-    border: '1px solid #fecaca',
-    borderRadius: '8px',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    color: 'var(--error)',
+    border: '1px solid rgba(239, 68, 68, 0.2)',
+    borderRadius: 'var(--border-radius-md)',
     cursor: 'pointer',
     fontSize: '14px',
+    fontWeight: 500,
     transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#fecaca'
-    }
+    fontFamily: 'var(--font-family)'
   },
   buttonGroup: {
     display: 'flex',
     gap: '8px',
     flexWrap: 'wrap'
+  },
+  divider: {
+    height: '1px',
+    backgroundColor: 'var(--neutral-200)',
+    margin: '4px 0'
   }
 };
 
