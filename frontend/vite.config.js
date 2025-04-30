@@ -9,7 +9,7 @@ export default defineConfig({
     proxy: {
       // Configure proxy to avoid CORS issues when developing
       '/api': {
-        target: 'http://localhost:8000',
+        target: '${import.meta.env.VITE_BACKEND_URL}',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

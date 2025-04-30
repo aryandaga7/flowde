@@ -124,7 +124,7 @@ const ChatWindow = ({ assignmentId, stepId, onClose, onDeepDiveSuccess, nodeData
     mutationFn: async (question) => {
       setIsDeepDiving(true);
       const response = await axios.post(
-        `http://localhost:8000/chat/deepdive/${stepId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/chat/deepdive/${stepId}`,
         { question },
         { headers: getAuthHeaders() }
       );

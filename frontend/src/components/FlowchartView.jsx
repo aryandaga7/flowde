@@ -87,7 +87,7 @@ function FlowchartView({ assignmentId }) {
     queryKey: ['assignment', assignmentId],
     queryFn: async () => {
       if (!assignmentId) return null;
-      const response = await axios.get(`http://localhost:8000/assignments/${assignmentId}`);
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/assignments/${assignmentId}`);
       return response.data;
     },
     enabled: !!assignmentId,
@@ -795,7 +795,7 @@ const handleDeepDiveSuccess = useCallback(() => {
   document.body.appendChild(loadingToast);
   
   // Make direct API call with cache-busting parameter
-  axios.get(`http://localhost:8000/assignments/${assignmentId}?nocache=${Date.now()}`, {
+  axios.get(`${import.meta.env.VITE_BACKEND_URL}/assignments/${assignmentId}?nocache=${Date.now()}`, {
     headers: {
       'Cache-Control': 'no-cache',
       'Pragma': 'no-cache'
