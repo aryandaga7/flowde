@@ -2,7 +2,7 @@
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-import PyJWT as jwt
+import jwt
 from sqlalchemy.orm import Session
 from core.database import SessionLocal
 from models.models import User

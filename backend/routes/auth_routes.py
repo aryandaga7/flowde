@@ -4,7 +4,7 @@ from core.database import SessionLocal
 from models.models import User
 from pydantic import BaseModel
 from passlib.context import CryptContext
-import PyJWT as jwt
+import jwt
 from datetime import datetime, timedelta
 from typing import Optional
 from core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
