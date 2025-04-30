@@ -80,7 +80,7 @@ const Login = ({ onAuthSuccess, switchToSignup }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/login', { email, password });
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/login`, { email, password });
       localStorage.setItem('access_token', response.data.access_token);
       onAuthSuccess(response.data);
     } catch (err) {

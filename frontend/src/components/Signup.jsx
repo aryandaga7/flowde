@@ -79,7 +79,7 @@ const Signup = ({ onAuthSuccess, switchToLogin, viewTerms, viewPrivacy }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/signup', {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/signup`, {
         email,
         password,
         first_name: firstName,
