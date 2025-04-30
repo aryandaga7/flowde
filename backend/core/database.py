@@ -5,11 +5,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from core.config import DATABASE_URL
 
-import socket
-orig_getaddrinfo = socket.getaddrinfo
-def force_ipv4_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
-    return orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
-socket.getaddrinfo = force_ipv4_getaddrinfo
 
 DATABASE_URL = DATABASE_URL
 
