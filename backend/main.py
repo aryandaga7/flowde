@@ -28,7 +28,7 @@ app = FastAPI()
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000",  "https://getflowde.com", 
+    allow_origins=["http://localhost:3000",  "https://getflowde.com", "https://www.getflowde.com", 
                    "https://flowde-frontend-54bud7wl2-aryan-dagas-projects-c1a7f340.vercel.app",
                    "https://assignment-workflow-mocha.vercel.app"],  # Frontend URL
     allow_credentials=True,
