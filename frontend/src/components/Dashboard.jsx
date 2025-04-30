@@ -76,7 +76,19 @@ const Dashboard = ({ onSelectAssignment, onNewAssignment, selectedAssignmentId, 
           Loading Projects...
         </div>
       ) : error ? (
-        <div style={styles.errorState}>⚠️ {error.message}</div>
+        // Check if it's a 404 error (no assignments) and show a friendly message
+        error.response && error.response.status === 404 ? (
+          <div style={styles.emptyProjectsState}>
+            <div style={styles.emptyStateIcon}>📝</div>
+            <h3 style={styles.emptyStateTitle}>No Projects Yet</h3>
+            <p style={styles.emptyStateText}>
+              You haven't created any projects yet. Click the "New Project" button to get started!
+            </p>
+          </div>
+        ) : (
+          // For other errors, show the error message
+          <div style={styles.errorState}>⚠️ {error.message}</div>
+        )
       ) : (
         <div style={styles.projectsContainer}>
           <h2 style={styles.sectionTitle}>Your Projects</h2>
@@ -257,6 +269,31 @@ const styles = {
     color: 'var(--neutral-500)',
     marginTop: '2px',
     fontWeight: 400,
+  },
+  emptyProjectsState: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '40px 20px',
+    textAlign: 'center',
+    gap: '16px'
+  },
+  emptyStateIcon: {
+    fontSize: '48px',
+    marginBottom: '8px'
+  },
+  emptyStateTitle: {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: 'var(--neutral-700)',
+    margin: '0'
+  },
+  emptyStateText: {
+    fontSize: '14px',
+    color: 'var(--neutral-500)',
+    maxWidth: '240px',
+    lineHeight: '1.5'
   },
 
   // Update header to include space for subtitle
