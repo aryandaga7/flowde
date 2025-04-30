@@ -32,8 +32,8 @@ app.add_middleware(
                    "https://flowde-frontend-54bud7wl2-aryan-dagas-projects-c1a7f340.vercel.app",
                    "https://assignment-workflow-mocha.vercel.app"],  # Frontend URL
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept"],
 )
 
 # Include routers
@@ -181,6 +181,10 @@ def test_gpt(body: dict):
     if not workflow:
         return {"error": "No response from GPT"}
     return workflow
+
+@app.get("/")
+def read_root():
+    return {"status": "online", "message": "Flowde API is running"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
