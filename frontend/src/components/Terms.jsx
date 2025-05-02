@@ -1,6 +1,23 @@
 import React from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+
 
 const Terms = ({ onBack }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check if we have state with a "from" path indicating where user came from
+  const returnPath = location.state?.from || "/";
+  
+  const handleBack = () => {
+    if (onBack) {
+      // If onBack exists (from signup flow), use it
+      onBack();
+    } else {
+      // Navigate to previous page or home
+      navigate(returnPath);
+    }
+  };
   return (
     <div style={styles.container}>
       <div style={styles.content}>
@@ -10,6 +27,22 @@ const Terms = ({ onBack }) => {
         >
           &larr; Back
         </button>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <h1 style={{
+              fontFamily: 'var(--font-family-logo, "Outfit", sans-serif)',
+              fontSize: '24px',
+              fontWeight: 700,
+              background: 'linear-gradient(90deg, var(--primary-600, #0070F3) 0%, var(--accent-500, #38B2AC) 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              margin: '0 0 8px 0',
+            }}>
+              flowde
+            </h1>
+          </Link>
+        </div>
         <h1 style={styles.title}>Terms of Service</h1>
         <p style={styles.date}>Last updated: April 28, 2025</p>
         

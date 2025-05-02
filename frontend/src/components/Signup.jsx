@@ -6,6 +6,7 @@ import { googleLogin } from '../services/api';
 import FlowBackground from './FlowBackground';
 import FlowSvgBackground from './FlowSvgBackground';
 import '../styles/AuthStyles.css';
+import { Link } from 'react-router-dom';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -99,7 +100,9 @@ const Signup = ({ onAuthSuccess, switchToLogin, viewTerms, viewPrivacy }) => {
       
       <div className="auth-card">
         <div className="auth-logo">
-          <h1 className="flowde-logo">flowde</h1>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <h1 className="flowde-logo">flowde</h1>
+          </Link>
           <p className="flowde-tagline">Visual Project Planning</p>
         </div>
         

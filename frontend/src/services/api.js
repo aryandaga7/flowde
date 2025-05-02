@@ -218,6 +218,57 @@ export const getCurrentUser = async () => {
   return response.data;
 };
 
+export const createAssignmentWithFiles = async (formData) => {
+  try {
+    // Log what's in the FormData for debugging
+    console.log("FormData contents:");
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]);
+    }
+    
+    const response = await axios.post(
+      `${API_BASE_URL}/create-assignment-with-files`,
+      formData,
+      { 
+        headers: { 
+          ...getAuthHeaders(),
+          // Let the browser set the Content-Type with boundary parameter automatically
+          'Content-Type': 'multipart/form-data',
+        } 
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating assignment with files:', error);
+    console.error('Response:', error.response?.data);
+    throw error;
+  }
+};
+
+export const testPdfExtraction = async (files) => {
+  try {
+    const formData = new FormData();
+    files.forEach((file, index) => {
+      formData.append(`files`, file);
+    });
+    
+    const response = await axios.post(
+      `${API_BASE_URL}/test-pdf-extraction`,
+      formData,
+      { 
+        headers: { 
+          ...getAuthHeaders(),
+          'Content-Type': 'multipart/form-data' 
+        } 
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error testing PDF extraction:', error);
+    throw error;
+  }
+};
+
 axios.interceptors.response.use(
   response => response,
   error => {
