@@ -1,6 +1,6 @@
-// src/LandingPageRouter.jsx
+// Modified LandingPageRouter.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import App from './App';
 
@@ -22,10 +22,10 @@ const LandingPageRouter = () => {
         
         {/* Auth routes with state initialization */}
         <Route path="/login" element={
-          <App view="login" authView="login" />
+          isAuthenticated ? <Navigate to="/dashboard" /> : <App view="login" authView="login" />
         } />
         <Route path="/signup" element={
-          <App view="login" authView="signup" />
+          isAuthenticated ? <Navigate to="/dashboard" /> : <App view="login" authView="signup" />
         } />
         <Route path="/terms" element={
           <App view="login" authView="terms" />
@@ -34,10 +34,10 @@ const LandingPageRouter = () => {
           <App view="login" authView="privacy" />
         } />
         
-        {/* Dashboard route - should redirect to login if not authenticated */}
+        {/* Dashboard route - redirect to app if authenticated */}
         <Route 
           path="/dashboard" 
-          element={isAuthenticated ? <Navigate to="/app" /> : <Navigate to="/login" />} 
+          element={isAuthenticated ? <App /> : <Navigate to="/login" />} 
         />
         
         {/* Catch all route - redirect to landing page */}

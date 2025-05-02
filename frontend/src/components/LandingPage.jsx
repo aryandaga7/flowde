@@ -65,7 +65,7 @@ const LandingPage = () => {
         </div>
         <div className="hero-image">
           <img 
-            src="/assets/hero-screenshot.png" 
+            src="/assets/hero-screenshot1.png" 
             alt="Flowde app interface showing a project flowchart" 
             className="hero-screenshot"
           />

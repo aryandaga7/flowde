@@ -11,6 +11,7 @@ import './App.css';
 import './Dashboard.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { getCurrentUser } from './services/api';
+import { useNavigate } from 'react-router-dom';
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,8 @@ function App() {
   
   const [selectedAssignment, setSelectedAssignment] = useState(parsedAssignment);
   const [assignmentId, setAssignmentId] = useState(parsedAssignment?.id || null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const validateToken = async () => {
@@ -110,6 +113,10 @@ function App() {
       try {
         const user = await getCurrentUser();
         setUserData(user);
+        // Navigate to dashboard after successful login
+        // navigate('/dashboard');
+        localStorage.setItem('access_token', authData.access_token);
+        window.location.href = '/dashboard';
       } catch (error) {
         console.error("Failed to fetch user data after authentication:", error);
       }

@@ -1,7 +1,7 @@
 // Updated AssignmentForm.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { createAssignment, createAssignmentWithFiles } from '../services/api';
-import { FiFileText, FiSend, FiArrowRight, FiLoader } from 'react-icons/fi';
+import { FiFileText, FiSend, FiArrowRight, FiLoader, FiFile, FiCode, FiBook, FiAlignLeft } from 'react-icons/fi';
 
 function AssignmentForm({ onAssignmentCreated }) {
   const [assignmentInput, setAssignmentInput] = useState('');
@@ -13,8 +13,40 @@ function AssignmentForm({ onAssignmentCreated }) {
   const [pdfError, setPdfError] = useState(null);
   const [pdfSuccess, setPdfSuccess] = useState(null);
   const [isUsingPdfOnly, setIsUsingPdfOnly] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   const MAX_FILES = 5;
   const MAX_FILE_SIZE = 10;
+  const ALLOWED_FILE_TYPES = {
+    'application/pdf': 'PDF',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+    'text/plain': 'TXT',
+    'text/markdown': 'MD',
+    'text/javascript': 'JS',
+    'text/x-python': 'Python',
+    'text/x-java': 'Java',
+    'text/html': 'HTML',
+    'text/css': 'CSS'
+  };
+
+  const getFileIcon = (file) => {
+    if (file.type.includes('pdf')) {
+      return <FiFileText size={16} style={{ ...styles.fileIcon, color: 'var(--error)' }} />;
+    } else if (file.type.includes('word') || file.name.endsWith('.docx')) {
+      return <FiBook size={16} style={{ ...styles.fileIcon, color: 'var(--primary-600)' }} />;
+    } else if (file.type.includes('text') || 
+               file.name.endsWith('.txt') || 
+               file.name.endsWith('.md')) {
+      return <FiAlignLeft size={16} style={{ ...styles.fileIcon, color: 'var(--neutral-600)' }} />;
+    } else if (file.name.endsWith('.py') || 
+               file.name.endsWith('.js') || 
+               file.name.endsWith('.java') || 
+               file.name.endsWith('.html') || 
+               file.name.endsWith('.css')) {
+      return <FiCode size={16} style={{ ...styles.fileIcon, color: 'var(--accent-500)' }} />;
+    }
+    return <FiFile size={16} style={styles.fileIcon} />;
+  };
 
   // Load saved form input on component mount
   useEffect(() => {
@@ -47,25 +79,40 @@ function AssignmentForm({ onAssignmentCreated }) {
     }
   }, [assignmentInput]);
 
+  useEffect(() => {
+    window.updateUploadProgress = (progress) => {
+      setUploadProgress(progress);
+    };
+    
+    return () => {
+      window.updateUploadProgress = null;
+    };
+  }, []);
+
   // Add this function to handle PDF uploads
-  const handlePdfUpload = (e) => {
+  const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     setPdfError(null);
     setPdfSuccess(null);
     
     // Check if user is trying to upload too many files
     if (pdfs.length + files.length > MAX_FILES) {
-      setPdfError(`You can only upload up to ${MAX_FILES} PDF files`);
+      setPdfError(`You can only upload up to ${MAX_FILES} files`);
       return;
     }
     
     // Check file types and sizes
     const validFiles = files.filter(file => {
-      if (!file.type.includes('pdf')) {
-        setPdfError('Only PDF files are allowed');
+      // Check file type
+      if (!Object.keys(ALLOWED_FILE_TYPES).includes(file.type) && 
+          !file.name.endsWith('.py') && 
+          !file.name.endsWith('.java') && 
+          !file.name.endsWith('.js')) {
+        setPdfError('Only PDF, DOCX, TXT, MD, and code files are allowed');
         return false;
       }
       
+      // Check file size
       if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
         setPdfError(`File size should not exceed ${MAX_FILE_SIZE}MB`);
         return false;
@@ -75,9 +122,9 @@ function AssignmentForm({ onAssignmentCreated }) {
     });
     
     if (validFiles.length > 0) {
-      const newPdfs = [...pdfs, ...validFiles];
-      setPdfs(newPdfs);
-      setPdfSuccess(`Successfully added ${validFiles.length} file(s). Total: ${newPdfs.length}`);
+      const newFiles = [...pdfs, ...validFiles];
+      setPdfs(newFiles);
+      setPdfSuccess(`Successfully added ${validFiles.length} file(s). Total: ${newFiles.length}`);
     }
   };
 
@@ -153,6 +200,7 @@ function AssignmentForm({ onAssignmentCreated }) {
       setIsLoading(false);
     }
   };
+  const totalFileSize = pdfs.reduce((total, file) => total + file.size, 0);
 
   return (
     <div style={styles.container}>
@@ -180,17 +228,18 @@ function AssignmentForm({ onAssignmentCreated }) {
                 <div style={styles.uploadIcon}>
                   <FiFileText size={20} />
                 </div>
-                <span>Upload Assignment PDF{pdfs.length > 0 ? ` (${pdfs.length}/${MAX_FILES})` : ''}</span>
+                <span>Upload Assignment Files{pdfs.length > 0 ? ` (${pdfs.length}/${MAX_FILES})` : ''}</span>
               </label>
               <input
                 id="pdf-upload"
                 type="file"
-                accept=".pdf"
+                accept=".pdf,.docx,.txt,.md,.py,.js,.java,.html,.css"
                 multiple
-                onChange={handlePdfUpload}
+                onChange={handleFileUpload}
                 style={styles.fileInput}
                 disabled={isLoading || pdfs.length >= MAX_FILES}
               />
+
               
               {pdfError && <div style={styles.pdfError}>{pdfError}</div>}
               {pdfSuccess && <div style={styles.pdfSuccess}>{pdfSuccess}</div>}
@@ -199,8 +248,11 @@ function AssignmentForm({ onAssignmentCreated }) {
                 <div style={styles.uploadedFiles}>
                   {pdfs.map((file, index) => (
                     <div key={index} style={styles.fileItem}>
-                      <FiFileText size={16} style={styles.fileIcon} />
+                      {getFileIcon(file)}
                       <span style={styles.fileName}>{file.name}</span>
+                      <span style={styles.fileSize}>
+                        {(file.size / 1024).toFixed(0)}KB
+                      </span>
                       <button
                         type="button"
                         style={styles.removeButton}
@@ -214,6 +266,37 @@ function AssignmentForm({ onAssignmentCreated }) {
                       </button>
                     </div>
                   ))}
+                </div>
+              )}
+              {pdfs.length > 0 && (
+                <div style={styles.fileStats}>
+                  <div style={styles.fileStat}>
+                    <span>Files:</span>
+                    <div style={styles.fileStatBar}>
+                      <div 
+                        style={{
+                          ...styles.fileStatFill,
+                          width: `${(pdfs.length / MAX_FILES) * 100}%`,
+                          backgroundColor: pdfs.length > MAX_FILES * 0.8 ? 'var(--warning, #f59e0b)' : 'var(--primary-500, #3b82f6)'
+                        }}
+                      />
+                    </div>
+                    <span>{pdfs.length}/{MAX_FILES}</span>
+                  </div>
+                  
+                  <div style={styles.fileStat}>
+                    <span>Size:</span>
+                    <div style={styles.fileStatBar}>
+                      <div 
+                        style={{
+                          ...styles.fileStatFill,
+                          width: `${Math.min((totalFileSize / (MAX_FILE_SIZE * 1024 * 1024)) * 100, 100)}%`,
+                          backgroundColor: totalFileSize > (MAX_FILE_SIZE * 1024 * 1024 * 0.8) ? 'var(--warning, #f59e0b)' : 'var(--primary-500, #3b82f6)'
+                        }}
+                      />
+                    </div>
+                    <span>{(totalFileSize / (1024 * 1024)).toFixed(2)}MB/{MAX_FILE_SIZE}MB</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -244,6 +327,20 @@ function AssignmentForm({ onAssignmentCreated }) {
                 )}
               </button>
             </div>
+            {isLoading && (
+              <div style={styles.progressContainer}>
+                <div style={styles.progressText}>Uploading files and creating assignment...</div>
+                <div style={styles.progressBar}>
+                  <div 
+                    style={{
+                      ...styles.progressFill,
+                      width: `${uploadProgress}%`
+                    }}
+                  />
+                </div>
+                <div style={styles.progressPercentage}>{uploadProgress}%</div>
+              </div>
+            )}
           </form>
         </div>
         
@@ -435,6 +532,66 @@ const styles = {
     borderRadius: '50%',
     height: '24px',
     width: '24px',
+  },
+  fileSize: {
+    fontSize: '12px',
+    color: 'var(--neutral-500)',
+    marginLeft: 'auto',
+    marginRight: '8px',
+  },
+  fileStats: {
+    marginTop: '12px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  fileStat: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '14px',
+  },
+  fileStatBar: {
+    flex: 1,
+    height: '8px',
+    backgroundColor: 'var(--neutral-200)',
+    borderRadius: '4px',
+    overflow: 'hidden',
+  },
+  fileStatFill: {
+    height: '100%',
+    borderRadius: '4px',
+    transition: 'width 0.3s ease',
+  },
+  progressContainer: {
+    marginTop: '16px',
+    padding: '16px',
+    backgroundColor: 'var(--neutral-50)',
+    borderRadius: 'var(--border-radius-md)',
+    border: '1px solid var(--neutral-200)',
+  },
+  progressText: {
+    fontSize: '14px',
+    color: 'var(--neutral-700)',
+    marginBottom: '8px',
+  },
+  progressBar: {
+    height: '8px',
+    backgroundColor: 'var(--neutral-200)',
+    borderRadius: '4px',
+    overflow: 'hidden',
+    marginBottom: '4px',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: 'var(--primary-500)',
+    borderRadius: '4px',
+    transition: 'width 0.3s ease',
+  },
+  progressPercentage: {
+    fontSize: '12px',
+    color: 'var(--neutral-500)',
+    textAlign: 'right',
   },
 
   pdfSuccess: {

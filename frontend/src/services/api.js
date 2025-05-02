@@ -234,7 +234,16 @@ export const createAssignmentWithFiles = async (formData) => {
           ...getAuthHeaders(),
           // Let the browser set the Content-Type with boundary parameter automatically
           'Content-Type': 'multipart/form-data',
-        } 
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          // Use a callback to update the upload progress
+          if (window.updateUploadProgress) {
+            window.updateUploadProgress(percentCompleted);
+          }
+        }
       }
     );
     return response.data;
