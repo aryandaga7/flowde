@@ -14,12 +14,12 @@ import { getCurrentUser } from './services/api';
 
 const queryClient = new QueryClient();
 
-function App({ view: initialView = 'login', authView: initialAuthView = 'login' }) {
+function App() {
   const [token, setToken] = useState(localStorage.getItem('access_token') || null);
-  const [view, setView] = useState(initialView);
+  const [view, setView] = useState('login'); // Only track view state for auth pages
   const [userData, setUserData] = useState(null);
 
-  const [authView, setAuthView] = useState(initialAuthView);
+  const [authView, setAuthView] = useState('login');
   
   // Get saved assignment data from localStorage
   const savedAssignment = localStorage.getItem('selectedAssignment');
