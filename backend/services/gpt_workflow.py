@@ -48,19 +48,35 @@ async def generate_assignment_workflow(assignment_input: str) -> dict:
         {
             "role": "system",
             "content": (
-                "You are an expert academic assistant. Your task is to analyze a student's assignment input and "
-                "extract the following details in strict JSON format with no extra text: "
-                "'title', 'due_date' (if available, otherwise null), 'description', and 'steps'. "
-                "The 'steps' should be an array of objects. Each step object must include an 'id', 'content', "
-                "and include a 'substeps' array (with each substep having an 'id' and 'content')."
+                "You are an expert academic workflow assistant helping students break down assignments visually. "
+                "Your task is to analyze a student's assignment input and create a structured workflow "
+                "that will be displayed as a visual flowchart with connected nodes."
+                "\n\n"
+                "ALWAYS RETURN JSON-ONLY with NO additional text or explanation with these exact fields:"
+                "\n"
+                "- 'title': A clear, concise title for the assignment (string)"
+                "- 'due_date': The assignment deadline in YYYY-MM-DD format, or null if not specified (string or null)"
+                "- 'description': A comprehensive description containing all key requirements (string)"
+                "- 'steps': An array of top-level steps, where each step must have:"
+                "  * 'content': A clear action-oriented task description (string)"
+                "  * 'substeps': An array of smaller tasks that break down the parent step, where each substep has 'content'"
+                "\n\n"
+                "IMPORTANT GUIDELINES:"
+                "- Each step should be a single, clear action or milestone"
+                "- Make steps sequential and logical"
+                "- Each substep should contribute directly to completing its parent step"
+                "- 3-6 main steps and 2-4 substeps per step is ideal for visualization"
+                "- Use educational terminology appropriate for academic planning"
                 f"Relevant Class Notes:\n{rag_context}"
             )
         },
         {
             "role": "user",
             "content": (
-                f"Assignment and resources: {assignment_input}\n\n"
-                "Please extract the assignment details with great detail and external resources to help the student complete his assignment and structure the information as specified."
+                f"Assignment: {assignment_input}\n\n"
+                "Create a visual workflow breakdown that will help a student complete this assignment effectively. "
+                "Focus on creating a logical sequence of steps that builds toward completion. "
+                "IMPORTANT: Return only valid JSON with no additional text or explanation."
             )
         }
     ]
@@ -70,8 +86,8 @@ async def generate_assignment_workflow(assignment_input: str) -> dict:
         response = await client.chat.completions.create(
             model="gpt-4o-mini",  # Replace with your intended model if needed
             messages=messages,
-            temperature=0.6,
-            max_tokens=1500
+            temperature=0.4,
+            max_tokens=2500
         )
         
         # Extract the output text from GPT-4's response and strip any leading/trailing spaces

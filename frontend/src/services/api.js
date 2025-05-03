@@ -125,6 +125,50 @@ export const updateNodeCompletion = async (nodeId, completed) => {
   }
 };
 
+export const updateAssignmentCompletion = async (assignmentId, completed) => {
+  try {
+    console.log(`Attempting to update assignment ${assignmentId} completion to ${completed}`);
+    const response = await axios.patch(
+      `${API_BASE_URL}/assignments/${assignmentId}/completion`,
+      { completed },
+      { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
+    );
+    console.log("Assignment completion update response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating assignment completion:', error);
+    console.error('Error details:', error.response?.data);
+    throw error;
+  }
+};
+
+export const getAssignmentCompletionStatus = async (assignmentId) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/assignments/${assignmentId}/completion-status`,
+      { headers: { ...getAuthHeaders() } }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error checking assignment completion status:', error);
+    throw error;
+  }
+};
+
+export const checkAndUpdateAssignmentCompletion = async (assignmentId) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/assignments/${assignmentId}/check-completion`,
+      {},  // Empty body since we're just triggering the check
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error checking assignment completion:', error);
+    throw error;
+  }
+};
+
 export const addNewNode = async (assignmentId, content, referenceNodeId, x, y, insertionType = null) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/steps`,

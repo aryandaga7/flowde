@@ -44,19 +44,33 @@ async def generate_assignment_chat_response(question: str, assignment_title: str
     for msg in recent_messages:
         context += f"User: {msg.user_message}\nBot: {msg.bot_response or 'No response yet'}\n"
     context += f"\nUser Question: {question}\n"
-    
-    prompt = (
-        f"Use the following course materials to improve your answer:\n\n"
-        f"{rag_context}\n\n"
-        f"Based on the following context:\n{context}\n"
-        "Provide a clear and helpful answer to the user's question."
-    )
+
+    # Create a more structured messages array instead of building one big prompt
+    messages = [
+        {
+            "role": "system", 
+            "content": (
+                "You are an expert academic workflow assistant in the Flowde app. "
+                "This app helps students break down assignments visually in a flowchart format with steps and substeps. "
+                "Your role is to provide clear, actionable advice that helps students complete their assignments. "
+                "Reference the visual workflow where appropriate and suggest specific, practical next steps."
+            )
+        },
+        {
+            "role": "user", 
+            "content": (
+                "RELEVANT COURSE MATERIALS:\n"
+                f"{rag_context}\n\n"
+                "CONTEXT AND QUESTION:\n"
+                f"{context}"
+            )
+        }
+    ]
     
     response = await client.chat.completions.create(
         model="gpt-4o-mini",  # or your desired model
-        messages=[{"role": "system", "content": "You are an expert academic assistant."},
-                  {"role": "user", "content": prompt}],
-        temperature=0.6,
+        messages=messages,
+        temperature=0.4,
         max_tokens=10000
     )
     reply = response.choices[0].message.content.strip()
@@ -100,19 +114,35 @@ async def generate_node_chat_response(question: str, assignment_title: str, assi
     for msg in recent_node_messages:
         context += f"User: {msg.user_message}\nBot: {msg.bot_response or 'No response yet'}\n"
     context += f"\nUser Question: {question}\n"
-    
-    prompt = (
-        f"Use the following course materials to improve your answer:\n\n"
-        f"{rag_context}\n\n"
-        f"Given the context:\n{context}\n"
-        "Provide a detailed, clear response that addresses the user's question about the node."
-    )
+
+    # Create a more structured messages array
+    messages = [
+        {
+            "role": "system", 
+            "content": (
+                "You are an expert academic workflow assistant in the Flowde app. "
+                "This app helps students break down assignments visually in a flowchart format. "
+                "The student is asking about a specific step in their workflow. "
+                "Provide targeted, actionable advice that helps them complete this specific step. "
+                "Be concrete and specific rather than general. Suggest practical approaches, resources, "
+                "or techniques they could use to complete this particular workflow step."
+            )
+        },
+        {
+            "role": "user", 
+            "content": (
+                "RELEVANT COURSE MATERIALS:\n"
+                f"{rag_context}\n\n"
+                "CONTEXT AND QUESTION:\n"
+                f"{context}"
+            )
+        }
+    ]
     
     response = await client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "system", "content": "You are an expert academic assistant."},
-                  {"role": "user", "content": prompt}],
-        temperature=0.6,
+        messages=messages,
+        temperature=0.4,
         max_tokens=10000
     )
     reply = response.choices[0].message.content.strip()

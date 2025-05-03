@@ -196,14 +196,13 @@ function FlowchartView({ assignmentId }) {
   }, []);
 
   // Edge styling function based on connection type
-  const getEdgeStyle = useCallback((edge) => {
-    // Parse the source and target IDs to get the node IDs
-    const sourceId = edge.source.replace("step-", "");
-    const targetId = edge.target.replace("step-", "");
+  const getEdgeStyle = useCallback((params) => {
+    const sourceId = params.source;
+    const targetId = params.target;
     
-    // Find source and target nodes
-    const sourceNode = nodes.find(n => n.id === edge.source)?.data;
-    const targetNode = nodes.find(n => n.id === edge.target)?.data;
+    // Find source and target nodes from current nodes state
+    const sourceNode = nodes.find(n => n.id === sourceId)?.data;
+    const targetNode = nodes.find(n => n.id === targetId)?.data;
     
     if (!sourceNode || !targetNode) {
       return {
@@ -213,51 +212,53 @@ function FlowchartView({ assignmentId }) {
       };
     }
     
-    const isMainToMain = sourceNode.parent_id === null && targetNode.parent_id === null;
-    const isMainToSub = sourceNode.parent_id === null && targetNode.parent_id === parseInt(sourceId, 10);
-    const isSubToSub = sourceNode.parent_id !== null && targetNode.parent_id !== null;
+    const fromId = parseInt(sourceId.replace("step-", ""), 10);
     
-    if (isMainToMain) {
-      // Main step to main step connection
+    if (sourceNode.parent_id === null && targetNode.parent_id === null) {
+      // Main step to main step - thicker, darker line
       return {
-        stroke: 'var(--neutral-500)',
+        stroke: 'var(--neutral-700)', // Darker neutral color
         strokeWidth: 3,
         opacity: 0.8
       };
-    } else if (isMainToSub) {
-      // Main step to its substep
+    } else if (sourceNode.parent_id === null && targetNode.parent_id === fromId) {
+      // Main step to its substep - MUCH more visible purple
       return {
-        stroke: '#8B5CF6', // Purple
-        strokeWidth: 2,
-        opacity: 0.7
+        stroke: '#7C3AED', // Vivid purple (Indigo-600)
+        strokeWidth: 2.5,  // Slightly thicker
+        opacity: 0.9,      // More opaque
+        strokeDasharray: '0'  // Solid line
       };
-    } else if (isSubToSub) {
-      // Substep to substep
+    } else if (sourceNode.parent_id !== null && targetNode.parent_id !== null) {
+      // Substep to substep - distinctive dashed lighter purple
       return {
         stroke: '#A78BFA', // Light purple
         strokeWidth: 2,
-        opacity: 0.6
-      };
-    } else {
-      // Default
-      return {
-        stroke: 'var(--neutral-300)',
-        strokeWidth: 2,
-        opacity: 0.6
+        opacity: 0.7,
+        strokeDasharray: '5, 5' // Dashed line pattern
       };
     }
+    
+    // Default
+    return {
+      stroke: 'var(--neutral-300)',
+      strokeWidth: 2,
+      opacity: 0.6
+    };
   }, [nodes]);
 
   // Process data into nodes and edges with enhanced styling
   const processFlowchartData = useCallback(data => {
     if (!data?.steps) return;
     
+    // 1. Create nodes first with proper content/label
     const flowNodes = data.steps.map(step => ({
       id: `step-${step.id}`,
       type: 'default',
       position: { x: step.position_x, y: step.position_y },
-      data: {
+      data: { 
         ...step,
+        // Include the label here
         label: (
           <div style={styles.nodeContent}>
             <div style={{
@@ -282,33 +283,78 @@ function FlowchartView({ assignmentId }) {
       },
       style: nodeStyles(step)
     }));
-
+  
+    // 2. Create a nodeMap for quick reference when styling edges
+    const nodeMap = {};
+    data.steps.forEach(step => {
+      nodeMap[`step-${step.id}`] = step;
+    });
+  
+    // 3. Create edges with enhanced styling based on nodeMap
     const flowEdges = data.connections.map(conn => {
       const edgeId = `edge-${conn.from_step}-${conn.to_step}`;
       const sourceId = `step-${conn.from_step}`;
       const targetId = `step-${conn.to_step}`;
+      
+      // Get source and target node data directly from our map
+      const sourceNode = nodeMap[sourceId];
+      const targetNode = nodeMap[targetId];
+      
+      // Determine edge style based on node relationship
+      let edgeStyle = {
+        stroke: 'var(--neutral-300)', // Default color
+        strokeWidth: 2,
+        opacity: 0.6
+      };
+      
+      if (sourceNode && targetNode) {
+        const fromId = parseInt(sourceId.replace("step-", ""), 10);
+        
+        if (sourceNode.parent_id === null && targetNode.parent_id === null) {
+          // Main step to main step - thicker, darker line
+          edgeStyle = {
+            stroke: 'var(--neutral-700)', // Darker neutral color
+            strokeWidth: 3,
+            opacity: 0.8
+          };
+        } else if (sourceNode.parent_id === null && targetNode.parent_id === fromId) {
+          // Main step to its substep - MUCH more visible purple
+          edgeStyle = {
+            stroke: '#7C3AED', // Vivid purple (Indigo-600)
+            strokeWidth: 2.5,  // Slightly thicker
+            opacity: 0.9,      // More opaque
+            strokeDasharray: '0'  // Solid line
+          };
+        } else if (sourceNode.parent_id !== null && targetNode.parent_id !== null) {
+          // Substep to substep - distinctive dashed lighter purple
+          edgeStyle = {
+            stroke: '#A78BFA', // Light purple
+            strokeWidth: 2,
+            opacity: 0.7,
+            strokeDasharray: '5, 5' // Dashed line pattern
+          };
+        }
+      }
       
       return {
         id: edgeId,
         source: sourceId,
         target: targetId,
         type: 'smoothstep',
-        animated: true,
+        animated: sourceNode?.parent_id === null && targetNode?.parent_id === null, // Only animate main-to-main
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: '#94a3b8'
+          color: edgeStyle.stroke // Match arrow color to line color
         },
-        style: getEdgeStyle({
-          id: edgeId,
-          source: sourceId,
-          target: targetId
-        })
+        style: edgeStyle
       };
     });
-
+  
+    // 4. Set both states at once
     setNodes(flowNodes);
     setEdges(flowEdges);
-  }, [nodeStyles, getEdgeStyle, setNodes, setEdges]);
+    
+  }, [nodeStyles]);
 
   // Enhanced reset layout function with improved hierarchy handling
   // Improved Reset Layout Function
@@ -836,27 +882,28 @@ const handleDeepDiveSuccess = useCallback(() => {
     // Extract the node IDs from the source and target
     const sourceId = parseInt(params.source.replace("step-", ""), 10);
     const targetId = parseInt(params.target.replace("step-", ""), 10);
-
+  
     try {
       // Update the backend
       await addConnection(assignmentId, sourceId, targetId);
       
-      // Update the frontend
+      // Get the edge style
+      const edgeStyle = getEdgeStyle(params);
+      
+      // Update the frontend with proper styling
       setEdges((eds) => 
         addEdge(
           {
             ...params,
             id: `edge-${sourceId}-${targetId}`,
             type: 'smoothstep',
-            animated: true,
-            style: getEdgeStyle({
-              id: `edge-${sourceId}-${targetId}`,
-              source: params.source,
-              target: params.target
-            }),
+            // Only animate main-to-main connections
+            animated: nodes.find(n => n.id === params.source)?.data?.parent_id === null && 
+                     nodes.find(n => n.id === params.target)?.data?.parent_id === null,
+            style: edgeStyle,
             markerEnd: {
               type: MarkerType.ArrowClosed,
-              color: '#94a3b8'
+              color: edgeStyle.stroke // Match arrow color to line color
             }
           }, 
           eds
@@ -867,7 +914,7 @@ const handleDeepDiveSuccess = useCallback(() => {
     } catch (err) {
       console.error("Error creating connection", err);
     }
-  }, [assignmentId, setEdges, getEdgeStyle]);
+  }, [assignmentId, setEdges, getEdgeStyle, nodes]);
 
   // Toggle legend visibility
   const toggleLegendVisibility = useCallback(() => {
@@ -947,7 +994,7 @@ const handleDeepDiveSuccess = useCallback(() => {
               <div style={{
                 width: 40,
                 height: 3, 
-                background: '#64748b',
+                background: 'var(--neutral-700)',
               }}></div>
             </div>
             <span style={styles.legendText}>Main Step Connection</span>
@@ -956,8 +1003,8 @@ const handleDeepDiveSuccess = useCallback(() => {
             <div style={styles.legendSwatch}>
               <div style={{
                 width: 40,
-                height: 2, 
-                background: '#8b5cf6',
+                height: 2.5, 
+                background: '#7C3AED', // Vivid purple
               }}></div>
             </div>
             <span style={styles.legendText}>Parent to Substep</span>
@@ -967,7 +1014,8 @@ const handleDeepDiveSuccess = useCallback(() => {
               <div style={{
                 width: 40,
                 height: 2, 
-                background: '#a78bfa',
+                background: '#A78BFA', // Light purple
+                borderTop: '1px dashed #A78BFA', // Show dashed style
               }}></div>
             </div>
             <span style={styles.legendText}>Substep Connection</span>

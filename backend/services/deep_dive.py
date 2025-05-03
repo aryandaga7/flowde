@@ -32,23 +32,50 @@ async def generate_deep_dive_breakdown(node_context: str, extra_context: str = "
     else:
         rag_context = "\n\n".join(retrieved_chunks)
     db.close()
-    prompt = f"Use the following notes to improve your breakdown:\n{rag_context}\n\n"
-    prompt = f"{node_context}\n"
-    if extra_context.strip():
-        prompt += f"Additional context: {extra_context}\n"
-    prompt += (
-        "Based on the above context, provide a structured JSON breakdown of this node into 2-3 actionable substeps. "
-        "The JSON output must have a key 'new_steps' whose value is a list of substep objects. Each substep object must include a 'content' field. "
-    )
+    # Suggested system prompt for deep_dive.py:
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are an expert academic assistant providing detailed breakdowns of assignment steps. "
+                "When a student wants to understand a step in more depth, you create a structured set of new substeps "
+                "that help them complete that specific part of their assignment."
+                "\n\n"
+                "ALWAYS RETURN JSON-ONLY with NO additional text or explanation with this structure:"
+                "{\n"
+                "  \"new_steps\": [\n"
+                "    { \"content\": \"First detailed substep description\" },\n"
+                "    { \"content\": \"Second detailed substep description\" },\n"
+                "    ...\n"
+                "  ]\n"
+                "}"
+                "\n\n"
+                "GUIDELINES:"
+                "- Create 3-5 substeps that break down the original step further"
+                "- Each substep should be specific, actionable, and build logically from the previous one"
+                "- Use educational terminology appropriate for academic work"
+                "- Consider research methods, writing techniques, or analysis approaches relevant to the assignment"
+                "- All steps should directly contribute to completing the parent step"
+                "RELEVANT COURSE MATERIALS:\n"
+                f"{rag_context}\n\n"
+            )
+        },
+        {
+            "role": "user",
+            "content": (
+                f"{node_context}\n\n"
+                f"The student wants a deeper breakdown of the step: \"{extra_context}\"\n"
+                "Create a detailed set of substeps that will help them complete this specific part of their assignment. "
+                "IMPORTANT: Return only valid JSON with no additional text or explanation."
+            )
+        }
+    ]
     try:
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert academic assistant specializing in task decomposition."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=10000
+            messages=messages,
+            temperature=0.6,
+            max_tokens=1500
         )
         output_text = response.choices[0].message.content.strip()
         try:
