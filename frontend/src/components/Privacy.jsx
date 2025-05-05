@@ -1,169 +1,129 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-
+import '../styles/LegalPages.css';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const Privacy = ({ onBack }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Check if we have state with a "from" path indicating where user came from
-  const returnPath = location.state?.from || "/";
   
   const handleBack = () => {
     if (onBack) {
       // If onBack exists (from signup flow), use it
       onBack();
     } else {
-      // Navigate to previous page or home
-      navigate(returnPath);
+      // Navigate back in history or to landing page
+      navigate(-1);
     }
   };
   return (
-    <div style={styles.container}>
-      <div style={styles.content}>
+    <div className="legal-page">
+      <div className="legal-header">
         <button 
-          onClick={onBack} 
-          style={styles.backButton}
+          onClick={handleBack} 
+          className="back-link"
         >
-          &larr; Back
+          <FiArrowLeft size={20} />
+          Back
         </button>
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <h1 style={{
-              fontFamily: 'var(--font-family-logo, "Outfit", sans-serif)',
-              fontSize: '24px',
-              fontWeight: 700,
-              background: 'linear-gradient(90deg, var(--primary-600, #0070F3) 0%, var(--accent-500, #38B2AC) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              margin: '0 0 8px 0',
-            }}>
-              flowde
-            </h1>
-          </Link>
+        <h1 className="legal-title">Privacy Policy</h1>
+      </div>
+      
+      <div className="legal-content">
+        <div className="legal-section">
+          <h2>1. Introduction</h2>
+          <p>
+            At Flowde, we value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, and disclose information about you when you use our website, services, and applications (collectively, the "Service").
+          </p>
+          <p>
+            By using the Service, you agree to the collection and use of information in accordance with this Privacy Policy.
+          </p>
         </div>
-        <h1 style={styles.title}>Privacy Policy</h1>
-        <p style={styles.date}>Last updated: April 28, 2025</p>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>1. Information We Collect</h2>
-          <p style={styles.text}>
-            We collect basic information required for account creation (email, name) and
-            project data you create while using Flowde. If you use Google authentication,
-            we receive information from your Google account as permitted by your Google settings.
+        <div className="legal-section">
+          <h2>2. Information We Collect</h2>
+          <p>
+            We collect several types of information from and about users of our Service, including:
           </p>
-        </section>
+          <ul>
+            <li>
+              <strong>Personal Information:</strong> This includes email address, name, and any other information you provide when registering for an account or using our Service.
+            </li>
+            <li>
+              <strong>Usage Data:</strong> We collect information about how you use the Service, including the pages you visit, the time and date of your visit, and other analytics data.
+            </li>
+            <li>
+              <strong>Device Information:</strong> We collect information about your device, including your IP address, browser type, and operating system.
+            </li>
+          </ul>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>2. How We Use Information</h2>
-          <p style={styles.text}>
-            We use your information solely to provide and improve the Flowde service,
-            including authenticating you, storing your projects, and enabling collaboration features.
+        <div className="legal-section">
+          <h2>3. How We Use Your Information</h2>
+          <p>
+            We use your information for various purposes, including:
           </p>
-        </section>
+          <ul>
+            <li>To provide and maintain our Service</li>
+            <li>To notify you about changes to our Service</li>
+            <li>To provide customer support</li>
+            <li>To monitor the usage of our Service</li>
+            <li>To detect, prevent, and address technical issues</li>
+          </ul>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>3. Data Security</h2>
-          <p style={styles.text}>
-            We implement reasonable security measures to protect your personal information,
-            but no method of transmission over the Internet or electronic storage is 100% secure.
+        <div className="legal-section">
+          <h2>4. Data Retention</h2>
+          <p>
+            We will retain your personal information only for as long as is necessary for the purposes set out in this Privacy Policy. We will retain and use your information to the extent necessary to comply with our legal obligations, resolve disputes, and enforce our policies.
           </p>
-        </section>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>4. Third-Party Services</h2>
-          <p style={styles.text}>
-            We use Google authentication services. Your interaction with these services
-            is subject to Google's privacy policies. We do not share your data with any
-            other third parties except as required by law.
+        <div className="legal-section">
+          <h2>5. Data Security</h2>
+          <p>
+            The security of your data is important to us, but please remember that no method of transmission over the Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.
           </p>
-        </section>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>5. Data Retention</h2>
-          <p style={styles.text}>
-            We store your account information and project data for as long as your account
-            is active. You may request deletion of your account and associated data at any time.
+        <div className="legal-section">
+          <h2>6. Your Data Protection Rights</h2>
+          <p>
+            Depending on your location, you may have certain rights regarding your personal information, such as:
           </p>
-        </section>
+          <ul>
+            <li>The right to access your personal information</li>
+            <li>The right to rectify inaccurate personal information</li>
+            <li>The right to request the deletion of your personal information</li>
+            <li>The right to object to the processing of your personal information</li>
+            <li>The right to data portability</li>
+          </ul>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>6. Contact</h2>
-          <p style={styles.text}>
+        <div className="legal-section">
+          <h2>7. Changes to This Privacy Policy</h2>
+          <p>
+            We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
+          </p>
+          <p>
+            You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.
+          </p>
+        </div>
+        
+        <div className="legal-section">
+          <h2>8. Contact Information</h2>
+          <p>
             If you have any questions about this Privacy Policy, please contact us at: 
-            <a href="mailto:support@flowde.app" style={styles.link}>support@flowde.app</a>
+            <a href="mailto:aryandaga7@gmail.com">aryandaga7@gmail.com</a>
           </p>
-        </section>
+        </div>
+      </div>
+      
+      <div className="legal-footer">
+        <p>Last updated: May 3, 2025</p>
+        <Link to="/" className="footer-link">Back to Home</Link>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    background: 'var(--neutral-50, #F9FAFB)',
-    display: 'flex',
-    justifyContent: 'center',
-    fontFamily: 'var(--font-family, "Inter", sans-serif)',
-    padding: '40px 20px',
-  },
-  backButton: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--primary-600, #0070F3)',
-    padding: '8px 0',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    display: 'inline-flex',
-    alignItems: 'center',
-    marginBottom: '16px',
-  },
-  content: {
-    maxWidth: '800px',
-    width: '100%',
-    backgroundColor: 'white',
-    borderRadius: 'var(--border-radius-lg, 12px)',
-    padding: '40px',
-    boxShadow: 'var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1))',
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: 'var(--neutral-900, #111827)',
-    marginBottom: '8px',
-    background: 'linear-gradient(90deg, var(--primary-600, #0070F3) 0%, var(--accent-500, #38B2AC) 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-  },
-  date: {
-    fontSize: '14px',
-    color: 'var(--neutral-500, #6B7280)',
-    marginBottom: '32px',
-  },
-  section: {
-    marginBottom: '32px',
-  },
-  sectionTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: 'var(--neutral-800, #1F2937)',
-    marginBottom: '16px',
-  },
-  text: {
-    fontSize: '16px',
-    lineHeight: '1.6',
-    color: 'var(--neutral-700, #374151)',
-  },
-  link: {
-    color: 'var(--primary-600, #0070F3)',
-    textDecoration: 'none',
-    fontWeight: '500',
-    marginLeft: '4px',
-  },
 };
 
 export default Privacy;

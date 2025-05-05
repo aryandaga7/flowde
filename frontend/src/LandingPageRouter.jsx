@@ -1,46 +1,37 @@
-// Modified LandingPageRouter.jsx
+// Replace the entire router with this implementation
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import App from './App';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import Terms from './components/Terms';
+import Privacy from './components/Privacy';
+
+// Protected route component
+const ProtectedRoute = () => {
+  const isAuthenticated = localStorage.getItem('access_token') !== null;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+};
 
 const LandingPageRouter = () => {
-  // Check if user is authenticated
-  const isAuthenticated = localStorage.getItem('access_token') !== null;
-
   return (
     <Router>
       <Routes>
-        {/* Landing page route */}
+        {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
         
-        {/* App routes - these should be protected */}
-        <Route 
-          path="/app/*" 
-          element={isAuthenticated ? <App /> : <Navigate to="/login" />} 
-        />
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<App />} />
+          <Route path="/app/*" element={<App />} />
+        </Route>
         
-        {/* Auth routes with state initialization */}
-        <Route path="/login" element={
-          isAuthenticated ? <Navigate to="/dashboard" /> : <App view="login" authView="login" />
-        } />
-        <Route path="/signup" element={
-          isAuthenticated ? <Navigate to="/dashboard" /> : <App view="login" authView="signup" />
-        } />
-        <Route path="/terms" element={
-          <App view="login" authView="terms" />
-        } />
-        <Route path="/privacy" element={
-          <App view="login" authView="privacy" />
-        } />
-        
-        {/* Dashboard route - redirect to app if authenticated */}
-        <Route 
-          path="/dashboard" 
-          element={isAuthenticated ? <App /> : <Navigate to="/login" />} 
-        />
-        
-        {/* Catch all route - redirect to landing page */}
+        {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

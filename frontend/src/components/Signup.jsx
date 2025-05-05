@@ -6,7 +6,7 @@ import { googleLogin } from '../services/api';
 import FlowBackground from './FlowBackground';
 import FlowSvgBackground from './FlowSvgBackground';
 import '../styles/AuthStyles.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -17,6 +17,10 @@ const Signup = ({ onAuthSuccess, switchToLogin, viewTerms, viewPrivacy }) => {
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const handleSwitchToLogin = () => navigate('/login');
+  const handleViewTerms = () => navigate('/terms', { state: { returnTo: '/signup' } });
+  const handleViewPrivacy = () => navigate('/privacy', { state: { returnTo: '/signup' } });
 
   useEffect(() => {
     // Load the Google Sign-In API script
@@ -202,7 +206,7 @@ const Signup = ({ onAuthSuccess, switchToLogin, viewTerms, viewPrivacy }) => {
           <button 
             type="button"
             className="auth-switch-button"
-            onClick={() => switchToLogin()}
+            onClick={() => handleSwitchToLogin()}
           >
             Sign in
           </button>
@@ -214,7 +218,7 @@ const Signup = ({ onAuthSuccess, switchToLogin, viewTerms, viewPrivacy }) => {
             href="#" 
             onClick={(e) => {
               e.preventDefault();
-              viewTerms();
+              handleViewTerms();
             }} 
             className="auth-terms-link"
           >
@@ -225,7 +229,7 @@ const Signup = ({ onAuthSuccess, switchToLogin, viewTerms, viewPrivacy }) => {
             href="#" 
             onClick={(e) => {
               e.preventDefault();
-              viewPrivacy();
+              handleViewPrivacy();
             }} 
             className="auth-terms-link"
           >

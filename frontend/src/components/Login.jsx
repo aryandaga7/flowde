@@ -7,7 +7,7 @@ import ForgotPasswordModal from './ForgotPasswordModal';
 import FlowBackground from './FlowBackground';
 import FlowSvgBackground from './FlowSvgBackground';
 import '../styles/AuthStyles.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -19,6 +19,8 @@ const Login = ({ onAuthSuccess, switchToSignup }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     // Load the Google Sign-In API script
@@ -69,13 +71,15 @@ const Login = ({ onAuthSuccess, switchToSignup }) => {
       setError(null);
       
       const result = await googleLogin(response.credential);
-      onAuthSuccess(result);
+      localStorage.setItem('access_token', result.access_token);
+      navigate('/dashboard');
     } catch (err) {
       setError("Google login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   // Handle form submission
   const handleLogin = async (e) => {
@@ -84,7 +88,7 @@ const Login = ({ onAuthSuccess, switchToSignup }) => {
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/login`, { email, password });
       localStorage.setItem('access_token', response.data.access_token);
-      onAuthSuccess(response.data);
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.detail || "Login failed. Please check your credentials.");
     } finally {
@@ -177,7 +181,7 @@ const Login = ({ onAuthSuccess, switchToSignup }) => {
           <button 
             type="button"
             className="auth-switch-button"
-            onClick={() => switchToSignup()}
+            onClick={() => navigate('/signup')}
           >
             Sign up
           </button>

@@ -130,10 +130,12 @@ function App() {
     localStorage.removeItem('assignmentId');
     localStorage.removeItem('chatState');
     setToken(null);
-    setView('login');
     setSelectedAssignment(null);
     setAssignmentId(null);
     setUserData(null);
+    
+    // Navigate to login page
+    navigate('/login');
   };
 
   const handleAssignmentCreated = (result) => {
@@ -175,58 +177,28 @@ function App() {
     setAssignmentId(null);
   };
 
-  if (token) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <div className="dashboard-container">
-          <Dashboard
-            onSelectAssignment={handleAssignmentSelect}
-            onNewAssignment={handleNewAssignment}
-            selectedAssignmentId={assignmentId}
-            onLogout={handleLogout}
-            userData={userData}
-          />
-          <div className="dashboard-content">
-            {/* Header removed as requested */}
-            {assignmentId ? (
-              <FlowchartView 
-                assignmentId={assignmentId}
-                key={assignmentId} // Force remount when ID changes 
-              />
-            ) : (
-              <div className="assignment-form-wrapper">
-                <AssignmentForm onAssignmentCreated={handleAssignmentCreated} />
-              </div>
-            )}
-          </div>
-        </div>
-      </QueryClientProvider>
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="app-container">
-        {authView === 'login' && (
-          <Login 
-            onAuthSuccess={handleAuthSuccess}
-            switchToSignup={() => setAuthView('signup')}
-          />
-        )}
-        {authView === 'signup' && (
-          <Signup 
-          onAuthSuccess={handleAuthSuccess}
-          switchToLogin={() => setAuthView('login')}
-          viewTerms={() => setAuthView('terms')}
-          viewPrivacy={() => setAuthView('privacy')}
+      <div className="dashboard-container">
+        <Dashboard
+          onSelectAssignment={handleAssignmentSelect}
+          onNewAssignment={handleNewAssignment}
+          selectedAssignmentId={assignmentId}
+          onLogout={handleLogout}
+          userData={userData}
         />
-        )}
-        {authView === 'terms' && (
-          <Terms onBack={() => setAuthView('signup')} />
-        )}
-        {authView === 'privacy' && (
-          <Privacy onBack={() => setAuthView('signup')} />
-        )}
+        <div className="dashboard-content">
+          {assignmentId ? (
+            <FlowchartView 
+              assignmentId={assignmentId}
+              key={assignmentId} 
+            />
+          ) : (
+            <div className="assignment-form-wrapper">
+              <AssignmentForm onAssignmentCreated={handleAssignmentCreated} />
+            </div>
+          )}
+        </div>
       </div>
     </QueryClientProvider>
   );

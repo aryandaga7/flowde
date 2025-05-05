@@ -1,161 +1,124 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-
+import '../styles/LegalPages.css';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const Terms = ({ onBack }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Check if we have state with a "from" path indicating where user came from
-  const returnPath = location.state?.from || "/";
   
   const handleBack = () => {
     if (onBack) {
       // If onBack exists (from signup flow), use it
       onBack();
     } else {
-      // Navigate to previous page or home
-      navigate(returnPath);
+      // Navigate back in history or to landing page
+      navigate(-1);
     }
   };
+  
   return (
-    <div style={styles.container}>
-      <div style={styles.content}>
+    <div className="legal-page">
+      <div className="legal-header">
         <button 
-          onClick={onBack} 
-          style={styles.backButton}
+          onClick={handleBack} 
+          className="back-link"
         >
-          &larr; Back
+          <FiArrowLeft size={20} />
+          Back
         </button>
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <h1 style={{
-              fontFamily: 'var(--font-family-logo, "Outfit", sans-serif)',
-              fontSize: '24px',
-              fontWeight: 700,
-              background: 'linear-gradient(90deg, var(--primary-600, #0070F3) 0%, var(--accent-500, #38B2AC) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              margin: '0 0 8px 0',
-            }}>
-              flowde
-            </h1>
-          </Link>
+        <h1 className="legal-title">Terms of Service</h1>
+      </div>
+      
+      <div className="legal-content">
+        <div className="legal-section">
+          <h2>1. Introduction</h2>
+          <p>
+            Welcome to Flowde ("we," "our," or "us"). These Terms of Service ("Terms") govern your access to and use of our website, services, and applications (collectively, the "Service").
+          </p>
+          <p>
+            By accessing or using the Service, you agree to be bound by these Terms. If you do not agree to these Terms, you may not access or use the Service.
+          </p>
         </div>
-        <h1 style={styles.title}>Terms of Service</h1>
-        <p style={styles.date}>Last updated: April 28, 2025</p>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>1. Introduction</h2>
-          <p style={styles.text}>
-            Welcome to Flowde ("we," "our," or "us"). This is a project created for educational and demonstration purposes.
-            By accessing or using our service, you agree to be bound by these Terms of Service.
+        <div className="legal-section">
+          <h2>2. Account Registration</h2>
+          <p>
+            To use certain features of the Service, you may be required to register for an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current, and complete.
           </p>
-        </section>
+          <p>
+            You are responsible for safeguarding your account credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account.
+          </p>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>2. Service Description</h2>
-          <p style={styles.text}>
-            Flowde is a visual project planning tool that allows users to create flowcharts and organize tasks.
-            The service is provided as-is with no guarantees of uptime or continued availability.
+        <div className="legal-section">
+          <h2>3. User Conduct</h2>
+          <p>
+            You agree not to use the Service to:
           </p>
-        </section>
+          <ul>
+            <li>Violate any applicable law or regulation</li>
+            <li>Infringe the intellectual property rights of others</li>
+            <li>Harass, abuse, or harm another person</li>
+            <li>Transmit any malware or viruses</li>
+            <li>Interfere with or disrupt the Service</li>
+            <li>Attempt to gain unauthorized access to the Service</li>
+          </ul>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>3. User Accounts</h2>
-          <p style={styles.text}>
-            You are responsible for safeguarding your password and for all activities that occur under your account.
-            We reserve the right to suspend or terminate accounts that violate these terms or engage in harmful behavior.
+        <div className="legal-section">
+          <h2>4. Intellectual Property</h2>
+          <p>
+            The Service and its content, features, and functionality are owned by Flowde and are protected by copyright, trademark, and other intellectual property laws.
           </p>
-        </section>
+          <p>
+            You may not copy, modify, distribute, sell, or lease any part of the Service without our prior written consent.
+          </p>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>4. Data Storage</h2>
-          <p style={styles.text}>
-            Your project data is stored in our database. We make reasonable efforts to protect your data
-            but cannot guarantee absolute security.
+        <div className="legal-section">
+          <h2>5. Termination</h2>
+          <p>
+            We may terminate or suspend your access to all or part of the Service, without prior notice or liability, for any reason, including if you breach these Terms.
           </p>
-        </section>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>5. Limitation of Liability</h2>
-          <p style={styles.text}>
-            To the maximum extent permitted by law, Flowde will not be liable for any indirect, incidental,
-            special, consequential, or punitive damages resulting from your use of or inability to use the service.
+        <div className="legal-section">
+          <h2>6. Disclaimer of Warranties</h2>
+          <p>
+            THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
           </p>
-        </section>
+        </div>
         
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>6. Changes to Terms</h2>
-          <p style={styles.text}>
-            We may modify these terms at any time. Continued use of Flowde after any modification
-            constitutes acceptance of the new terms.
+        <div className="legal-section">
+          <h2>7. Limitation of Liability</h2>
+          <p>
+            IN NO EVENT SHALL FLOWDE BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATED TO YOUR USE OF THE SERVICE.
           </p>
-        </section>
+        </div>
+        
+        <div className="legal-section">
+          <h2>8. Changes to Terms</h2>
+          <p>
+            We may modify these Terms at any time. If we make material changes to these Terms, we will notify you by email or by posting a notice on our website.
+          </p>
+        </div>
+        
+        <div className="legal-section">
+          <h2>9. Contact Information</h2>
+          <p>
+            If you have any questions about these Terms, please contact us at: 
+            <a href="mailto:aryandaga7@gmail.com">aryandaga7@gmail.com</a>
+          </p>
+        </div>
+      </div>
+      
+      <div className="legal-footer">
+        <p>Last updated: May 3, 2025</p>
+        <Link to="/" className="footer-link">Back to Home</Link>
       </div>
     </div>
   );
 };
 
-const styles = {
-  container: {
-    minHeight: '100vh',
-    background: 'var(--neutral-50, #F9FAFB)',
-    display: 'flex',
-    justifyContent: 'center',
-    fontFamily: 'var(--font-family, "Inter", sans-serif)',
-    padding: '40px 20px',
-  },
-  backButton: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--primary-600, #0070F3)',
-    padding: '8px 0',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    display: 'inline-flex',
-    alignItems: 'center',
-    marginBottom: '16px',
-  },
-  content: {
-    maxWidth: '800px',
-    width: '100%',
-    backgroundColor: 'white',
-    borderRadius: 'var(--border-radius-lg, 12px)',
-    padding: '40px',
-    boxShadow: 'var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1))',
-  },
-  title: {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: 'var(--neutral-900, #111827)',
-    marginBottom: '8px',
-    background: 'linear-gradient(90deg, var(--primary-600, #0070F3) 0%, var(--accent-500, #38B2AC) 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-  },
-  date: {
-    fontSize: '14px',
-    color: 'var(--neutral-500, #6B7280)',
-    marginBottom: '32px',
-  },
-  section: {
-    marginBottom: '32px',
-  },
-  sectionTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: 'var(--neutral-800, #1F2937)',
-    marginBottom: '16px',
-  },
-  text: {
-    fontSize: '16px',
-    lineHeight: '1.6',
-    color: 'var(--neutral-700, #374151)',
-  },
-};
 
 export default Terms;
