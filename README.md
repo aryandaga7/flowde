@@ -42,7 +42,7 @@ Upload any assignment file or paste instructions to get started.
 <img src="frontend/public/assets/upload-screen.png" alt="Assignment Upload" width="700"/>
 
 📊 Flowchart Generation
-Automatically generates a visual step-by-step breakdown of your assignment with editable nodes.
+Generates a visual step-by-step breakdown of your assignment with editable nodes.
 <img src="frontend/public/assets/flowchart-demo.png" alt="Flowchart Generation" width="700"/>
 
 💬 Deep Dive Chat
