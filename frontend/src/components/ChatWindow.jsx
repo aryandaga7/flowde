@@ -15,6 +15,7 @@ const ChatWindow = ({ assignmentId, stepId, onClose, onDeepDiveSuccess, nodeData
   const [input, setInput] = useState('');
   const [deepDiveActive, setDeepDiveActive] = useState(false);
   const [copiedCode, setCopiedCode] = useState(null);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [isDeepDiving, setIsDeepDiving] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -71,6 +72,9 @@ const ChatWindow = ({ assignmentId, stepId, onClose, onDeepDiveSuccess, nodeData
       user_message: message
     }),
     onMutate: async (newMessage) => {
+      // Add this line to show streaming indicator
+      setIsStreaming(true);
+      
       // Optimistic update
       const tempId = Date.now();
       
@@ -108,6 +112,8 @@ const ChatWindow = ({ assignmentId, stepId, onClose, onDeepDiveSuccess, nodeData
       console.error("Error sending message:", err);
     },
     onSettled: () => {
+      // Add this line to hide streaming indicator when complete
+      setIsStreaming(false);
       // Refetch to ensure we're in sync with the server
       queryClient.invalidateQueries({ queryKey: chatQueryKey });
     }
@@ -378,6 +384,18 @@ const ChatWindow = ({ assignmentId, stepId, onClose, onDeepDiveSuccess, nodeData
               </div>
             ))
           )}
+          {isStreaming && (
+            <div style={styles.messageRow}>
+              <div style={styles.botBubble}>
+                <div style={styles.thinkingIndicator}>
+                  Flowde is thinking
+                  <span style={styles.dot1}>.</span>
+                  <span style={styles.dot2}>.</span>
+                  <span style={styles.dot3}>.</span>
+                </div>
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
@@ -512,6 +530,29 @@ const styles = {
     marginBottom: '20px',
     transition: 'all 0.2s ease',
     animation: 'fadeIn 0.3s ease'
+  },
+  thinkingIndicator: {
+    display: 'flex',
+    alignItems: 'center',
+    color: 'var(--neutral-500)',
+    fontStyle: 'italic',
+  },
+  dot1: {
+    animation: 'blink 1.4s infinite',
+    animationDelay: '0.2s',
+  },
+  dot2: {
+    animation: 'blink 1.4s infinite',
+    animationDelay: '0.4s',
+  },
+  dot3: {
+    animation: 'blink 1.4s infinite',
+    animationDelay: '0.6s',
+  },
+  '@keyframes blink': {
+    '0%': { opacity: 0.2 },
+    '20%': { opacity: 1 },
+    '100%': { opacity: 0.2 },
   },
   botBubble: {
     background: 'white',
