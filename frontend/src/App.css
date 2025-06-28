@@ -1,327 +1,48 @@
-/* App.css - Main styles for the Assignment Workflow Generator */
-
-/* Global styles */
-:root {
-  --primary-color: #3498db;
-  --primary-dark: #2980b9;
-  --secondary-color: #2ecc71;
-  --text-color: #333;
-  --light-gray: #f5f5f5;
-  --mid-gray: #e0e0e0;
-  --border-color: #ddd;
-  --error-color: #e74c3c;
+#root {
+  height: 100%;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: var(--text-color);
-  background-color: #f9f9f9;
-}
-
-/* App container */
-.app-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-/* Header styles */
-.app-header {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.app-header h1 {
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
-
-/* Main content area */
-.app-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* Form section */
-.form-section {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-}
-
-.assignment-form-container h2 {
-  margin-bottom: 1rem;
-  color: var(--primary-color);
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.form-group textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-family: inherit;
-  resize: vertical;
-}
-
-.error-message {
-  background-color: #ffebee;
-  color: var(--error-color);
-  padding: 0.75rem;
-  border-radius:.25rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid var(--error-color);
-}
-
-.submit-button {
-  background-color: var(--primary-color);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.submit-button:hover {
-  background-color: var(--primary-dark);
-}
-
-.submit-button:disabled {
-  background-color: var(--mid-gray);
-  cursor: not-allowed;
-}
-
-.minimal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  background-color: #ffffff; /* light background, adjust as needed */
-}
-
-.logout-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.logout-button:hover {
-  background: #f1f5f9;
-}
-
-
-/* Flowchart section */
-.flowchart-section {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-}
-
-.test-mode-notice {
-  background-color: #fff8e1;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  border-left: 4px solid #ffc107;
-}
-
-/* View controls */
-.view-controls {
-  display: flex;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1rem;
-}
-
-.view-button {
-  padding: 0.5rem 1rem;
-  background-color: var(--light-gray);
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.view-button:first-child {
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
-.view-button:last-child {
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-}
-
-.view-button.active {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-dark);
-}
-
-.assignment-header {
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1rem;
-}
-
-.assignment-header h2 {
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
-
-.due-date {
-  font-weight: 500;
-  color: var(--error-color);
-}
-
-.assignment-description {
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.assignment-description h3 {
-  margin-bottom: 0.5rem;
-  color: var(--primary-dark);
-}
-
-.steps-container h3 {
-  margin-bottom: 1rem;
-  color: var(--primary-dark);
-}
-
-.steps-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 2rem;
-}
-
-.steps-table th {
-  background-color: var(--light-gray);
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 2px solid var(--primary-color);
-}
-
-.steps-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.steps-table .main-step {
-  background-color: white;
-  font-weight: 500;
-}
-
-.steps-table .main-step td:first-child {
-  width: 80px;
-  color: var(--primary-color);
-  font-weight: bold;
-}
-
-.steps-table .substep {
-  background-color: var(--light-gray);
-}
-
-.steps-table .substep td:first-child {
-  padding-left: 2rem;
-  width: 80px;
-  color: var(--primary-dark);
-}
-
-.assignment-flowchart-empty {
-  text-align: center;
-  padding: 2rem;
-  background-color: var(--light-gray);
-  border-radius: 4px;
-  color: #666;
-}
-
-/* Flowchart container */
-.flowchart-container {
-  width: 100%;
-  height: 600px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.flowchart-container h2 {
-  margin-bottom: 1rem;
-  color: var(--primary-color);
-}
-
-/* Loading and error states */
-.loading, .error, .no-data {
-  padding: 2rem;
-  text-align: center;
-  border-radius: 4px;
-}
-
-.loading {
-  background-color: #e3f2fd;
-  color: var(--primary-dark);
-}
-
-.error {
-  background-color: #ffebee;
-  color: var(--error-color);
-}
-
-.no-data {
-  background-color: var(--light-gray);
-  color: #666;
-}
-
-/* Footer */
-.app-footer {
-  margin-top: 2rem;
-  text-align: center;
-  padding: 1rem;
-  border-top: 1px solid var(--border-color);
-  color: #666;
-}
-
-/* Responsive design */
-@media (min-width: 768px) {
-  .app-main {
-    flex-direction: row;
-    align-items: flex-start;
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
   }
-  
-  .form-section,
-  .flowchart-section {
-    flex: 1;
+  to {
+    transform: rotate(360deg);
   }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
 }

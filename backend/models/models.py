@@ -1,13 +1,17 @@
 # models.py
 
-import datetime
-from sqlalchemy import Column, Integer, String, Boolean, Float, Text, ForeignKey, TIMESTAMP
+import datetime, uuid
+from sqlalchemy import (
+    Column, Integer, String, Boolean, Float, Text, ForeignKey, TIMESTAMP,
+    DateTime, Enum as SQLEnum, UniqueConstraint
+)
 from sqlalchemy.orm import relationship
 from core.database import Base  # Import the Base from database.py
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy import Column, Text
 from pgvector.sqlalchemy import Vector
-from sqlalchemy.sql import text
+from sqlalchemy.sql import text, func
+import enum
 
 class DocumentChunk(Base):
     __tablename__ = "document_chunks"
@@ -23,7 +27,10 @@ class DocumentChunk(Base):
 class User(Base):
     __tablename__ = "users"
     
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True),
+                primary_key=True,
+                default=uuid.uuid4,          # client-side generation
+                server_default=text("gen_random_uuid()"))
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=True)
     first_name = Column(String, nullable=True) 
@@ -32,6 +39,8 @@ class User(Base):
     
     # Relationship: a user can have multiple assignments.
     assignments = relationship("Assignment", back_populates="owner", cascade="all, delete-orphan")
+    # Relationship: a user can have multiple idea sessions.
+    idea_sessions = relationship("IdeaSession", back_populates="user")
 
 
 # ---------------------
@@ -43,7 +52,9 @@ class Assignment(Base):
     # Unique identifier for the assignment.
     id = Column(Integer, primary_key=True, index=True)
     # Foreign key linking this assignment to a specific user.
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(UUID(as_uuid=True),
+                     ForeignKey("users.id", ondelete="CASCADE"),
+                     nullable=False)
     # Title of the assignment.
     title = Column(String, nullable=False)
     # Detailed description of the assignment.
@@ -132,3 +143,196 @@ class ChatMessage(Base):
     
     # Relationship: each chat message belongs to an assignment.
     assignment = relationship("Assignment", back_populates="chat_messages")
+
+# ───────── NEW TABLES (Flowde 2.0) ─────────
+
+# Enum for session status
+class SessionStatus(enum.Enum):
+    DRAFT = "draft"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+
+class IdeaSession(Base):
+    __tablename__ = "idea_sessions"
+
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                server_default=text("gen_random_uuid()"))
+    user_id = Column(UUID(as_uuid=True),
+                    ForeignKey("users.id", ondelete="CASCADE"),
+                    nullable=False)
+    title = Column(String, nullable=True)
+    is_public = Column(Boolean, default=False)
+    
+    # New columns
+    status = Column(SQLEnum(SessionStatus), 
+                   nullable=False, 
+                   default=SessionStatus.DRAFT)
+    session_data = Column(JSONB, nullable=True)  # Renamed from metadata
+    spec_markdown = Column(Text, nullable=True)
+    
+    # Timestamps
+    created_at = Column(DateTime, nullable=False,
+                       default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False,
+                       default=datetime.datetime.utcnow,
+                       onupdate=datetime.datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="idea_sessions")
+    messages = relationship("IdeaMessage", back_populates="session",
+                          cascade="all, delete-orphan",
+                          order_by="IdeaMessage.created_at")
+    nodes = relationship("Node", back_populates="session",
+                        cascade="all, delete-orphan")
+    edges = relationship("Edge", back_populates="session", cascade="all, delete-orphan")
+    spec_changes = relationship("SpecChange", back_populates="session",
+                              cascade="all, delete-orphan",
+                              order_by="SpecChange.created_at")
+
+class IdeaMessage(Base):
+    __tablename__ = "idea_messages"
+
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                server_default=text("gen_random_uuid()"))
+    session_id = Column(UUID(as_uuid=True),
+                       ForeignKey("idea_sessions.id", ondelete="CASCADE"),
+                       nullable=False)
+    role = Column(String, nullable=False)  # 'user' | 'assistant'
+    content = Column(Text, nullable=False)
+    
+    # Add message_data for potential future use (e.g., message type, UI hints)
+    message_data = Column(JSONB, nullable=True)  # Renamed from metadata
+    
+    created_at = Column(DateTime, nullable=False,
+                       default=datetime.datetime.utcnow)
+
+    session = relationship("IdeaSession", back_populates="messages")
+
+class SpecChange(Base):
+    __tablename__ = "spec_changes"
+
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                server_default=text("gen_random_uuid()"))
+    session_id = Column(UUID(as_uuid=True),
+                       ForeignKey("idea_sessions.id", ondelete="CASCADE"),
+                       nullable=False)
+    
+    # Store both the patch and the complete spec at this point
+    patch = Column(JSONB, nullable=False)
+    spec_markdown = Column(Text, nullable=False)  # Full spec at this point
+    
+    created_at = Column(DateTime, nullable=False,
+                       default=datetime.datetime.utcnow)
+    
+    # Add change_data for tracking change context
+    change_data = Column(JSONB, nullable=True)  # Renamed from metadata
+    
+    session = relationship("IdeaSession", back_populates="spec_changes")
+
+class Node(Base):
+    """
+    A graph node representing a component in the tech stack flowchart.
+    Nodes can have multiple incoming and outgoing connections through the Edge table.
+    """
+    __tablename__ = "nodes"
+
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                server_default=text("gen_random_uuid()"))
+    session_id = Column(UUID(as_uuid=True),
+                       ForeignKey("idea_sessions.id", ondelete="CASCADE"),
+                       nullable=False)
+    
+    # Node properties
+    name = Column(String, nullable=False)
+    type = Column(String, nullable=False)  # 'UI' | 'API' | 'Database' | 'Service' etc
+    x = Column(Float, default=0.0)
+    y = Column(Float, default=0.0)
+    node_data = Column(JSONB, nullable=True)  # Additional node configuration
+
+    created_at = Column(DateTime, nullable=False,
+                       default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False,
+                       default=datetime.datetime.utcnow,
+                       onupdate=datetime.datetime.utcnow)
+
+    # Relationships
+    session = relationship("IdeaSession", back_populates="nodes")
+    
+    # Graph relationships through edges
+    outgoing_edges = relationship(
+        "Edge",
+        foreign_keys="Edge.source_id",
+        back_populates="source_node",
+        cascade="all, delete-orphan"
+    )
+    incoming_edges = relationship(
+        "Edge",
+        foreign_keys="Edge.target_id",
+        back_populates="target_node",
+        cascade="all, delete-orphan"
+    )
+
+    def get_connected_nodes(self, direction="both"):
+        """Get nodes connected to this node."""
+        if direction == "outgoing":
+            return [edge.target_node for edge in self.outgoing_edges]
+        elif direction == "incoming":
+            return [edge.source_node for edge in self.incoming_edges]
+        else:  # both
+            return (
+                [edge.target_node for edge in self.outgoing_edges] +
+                [edge.source_node for edge in self.incoming_edges]
+            )
+
+class Edge(Base):
+    """
+    Represents a directed connection between two nodes in the flowchart.
+    Each edge has a source node and target node, creating a directed graph structure.
+    """
+    __tablename__ = "edges"
+
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                server_default=text("gen_random_uuid()"))
+    session_id = Column(UUID(as_uuid=True),
+                       ForeignKey("idea_sessions.id", ondelete="CASCADE"),
+                       nullable=False)
+    
+    # Graph structure
+    source_id = Column(UUID(as_uuid=True), 
+                      ForeignKey("nodes.id", ondelete="CASCADE"),
+                      nullable=False)
+    target_id = Column(UUID(as_uuid=True), 
+                      ForeignKey("nodes.id", ondelete="CASCADE"),
+                      nullable=False)
+    
+    # Edge properties
+    edge_type = Column(String, nullable=False)  # 'data_flow', 'dependency', 'api_call', etc
+    edge_data = Column(JSONB, nullable=True)  # Additional edge configuration
+    
+    # Optional label/description for the connection
+    label = Column(String, nullable=True)
+    
+    created_at = Column(DateTime, nullable=False,
+                       default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False,
+                       default=datetime.datetime.utcnow,
+                       onupdate=datetime.datetime.utcnow)
+
+    # Relationships
+    session = relationship("IdeaSession", back_populates="edges")
+    source_node = relationship(
+        "Node",
+        foreign_keys=[source_id],
+        back_populates="outgoing_edges"
+    )
+    target_node = relationship(
+        "Node",
+        foreign_keys=[target_id],
+        back_populates="incoming_edges"
+    )
+
+    __table_args__ = (
+        # Prevent duplicate edges between the same nodes
+        UniqueConstraint('session_id', 'source_id', 'target_id', 
+                        name='unique_edge_per_session'),
+    )

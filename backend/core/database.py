@@ -3,12 +3,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from core.config import DATABASE_URL
+# from core.config import DATABASE_URL
 
 
-DATABASE_URL = DATABASE_URL
+DATABASE_URL = "postgresql://postgres:3119@localhost:5432/FlowdeTestingDB"
 
-engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
+# engine = create_engine(DATABASE_URL, connect_args={"sslmode": "require"})
+engine = create_engine(DATABASE_URL)
 
 # Create a configured "Session" class.
 # Sessions are used to interact with the database (e.g., execute queries, insert data).
