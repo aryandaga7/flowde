@@ -1,0 +1,129 @@
+/* Spec Pane specific styles */
+
+/* Section completion indicators */
+.section-incomplete {
+  @apply border-l-4 border-red-500 pl-4 -ml-4;
+}
+
+.section-complete {
+  @apply border-l-4 border-green-500 pl-4 -ml-4;
+}
+
+/* Section header layout */
+.section-header {
+  @apply flex items-center justify-between gap-4 mt-6 mb-3;
+}
+
+.section-header h2 {
+  @apply m-0 flex-1;
+}
+
+/* Interactive buttons for open questions */
+.open-question {
+  @apply flex items-center gap-4 my-2;
+}
+
+.open-question button {
+  @apply px-2 py-1 text-xs bg-transparent whitespace-nowrap rounded;
+}
+
+.reply-btn {
+  @apply border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white transition-colors;
+}
+
+.reply-btn:hover {
+  @apply bg-primary-500 text-white;
+}
+
+.ai-suggest-btn {
+  @apply border border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-colors;
+}
+
+.ai-suggest-btn:hover {
+  @apply bg-green-500 text-white;
+}
+
+/* Version control styles */
+.version-navigator {
+  @apply flex items-center gap-2;
+}
+
+.version-navigator button {
+  @apply text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+}
+
+.version-indicator {
+  @apply text-sm text-gray-600 dark:text-gray-400 select-none;
+}
+
+.version-historical {
+  @apply text-amber-600 dark:text-amber-400 font-medium;
+}
+
+/* Edit mode styles */
+.edit-textarea {
+  @apply font-mono text-sm leading-relaxed border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors;
+  tab-size: 2;
+}
+
+.edit-textarea:focus {
+  @apply border-primary-500 ring-2 ring-primary-500/20;
+}
+
+/* Action buttons */
+.spec-action-btn {
+  @apply p-2 rounded transition-colors border border-transparent;
+}
+
+.spec-action-btn:not(:disabled):hover {
+  @apply bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700;
+}
+
+.spec-action-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.spec-action-btn.primary {
+  @apply bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 border-green-600;
+}
+
+.spec-action-btn.restore {
+  @apply bg-green-600 text-white hover:bg-green-700 px-3 py-1 text-sm;
+}
+
+/* Save dialog */
+.save-dialog {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50;
+}
+
+.save-dialog-content {
+  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl;
+}
+
+.save-dialog h3 {
+  @apply text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4;
+}
+
+.save-dialog textarea {
+  @apply w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm resize-none h-24;
+}
+
+.save-dialog textarea:focus {
+  @apply border-primary-500 ring-2 ring-primary-500/20;
+}
+
+.save-dialog-buttons {
+  @apply flex gap-2 mt-4;
+}
+
+.save-dialog-buttons button {
+  @apply flex-1 py-2 px-4 rounded-lg font-medium transition-colors;
+}
+
+.save-button {
+  @apply bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.cancel-button {
+  @apply bg-gray-600 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed;
+} 

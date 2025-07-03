@@ -46,7 +46,7 @@ export default function Login() {
   })
 
   // Google login mutation
-  const { mutate: googleLogin, isPending: isGooglePending } = useMutation({
+  const { mutate: googleLogin } = useMutation({
     mutationFn: authApi.googleLogin,
     onSuccess: (data) => {
       setToken(data.access_token)

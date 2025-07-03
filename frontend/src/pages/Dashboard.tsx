@@ -6,6 +6,7 @@ import { useIdeaSession } from '../stores/ideaSession'
 import { useAuthSession } from '../stores/authSession'
 import { useQuery } from '@tanstack/react-query'
 import { ideaApi } from '../services/api'
+import { ThemeToggle } from '../components/ThemeToggle'
 import type { IdeaSession } from '../types/idea'
 
 export default function Dashboard() {
@@ -57,17 +58,17 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-full overflow-hidden bg-white">
+    <div className="flex h-full overflow-hidden bg-white dark:bg-gray-900">
       {/* Left Sidebar - 20% width */}
-      <div className="w-[20%] min-w-[250px] max-w-[350px] bg-gray-50 border-r border-gray-200 flex flex-col">
+      <div className="w-[20%] min-w-[250px] max-w-[350px] bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
         {/* Logo and New Idea Button Section */}
-        <div className="p-4 border-b border-gray-200 space-y-4">
-          <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
+          <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
             flowde
           </h1>
           <button
             onClick={handleNewIdea}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <PlusIcon className="w-5 h-5" />
             New Idea
@@ -77,7 +78,7 @@ export default function Dashboard() {
         {/* Ideas List */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-4">
-            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <h2 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
               Recent Ideas
             </h2>
             <div className="space-y-1">
@@ -87,24 +88,24 @@ export default function Dashboard() {
                   onClick={() => handleSelectIdea(session)}
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
                     currentIdeaId === session.id
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'hover:bg-gray-100'
+                      ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
                   }`}
                 >
                   <h3 className="text-sm font-medium truncate">
                     {session.title || `Untitled Idea ${session.id}`}
                   </h3>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                     {session.spec_preview || 'No description yet'}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {new Date(session.created_at).toLocaleDateString()}
                   </p>
                 </button>
               ))}
 
               {sessions.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                   <p className="text-sm">No ideas yet</p>
                   <p className="text-xs mt-1">Start by describing your project idea</p>
                 </div>
@@ -114,13 +115,14 @@ export default function Dashboard() {
         </div>
 
         {/* User Profile Section */}
-        <div className="border-t border-gray-200 p-4">
+        <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-3">
+          <ThemeToggle />
           <button
             onClick={handleSignOut}
-            className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 group"
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-2 group"
           >
-            <ArrowLeftIcon className="w-4 h-4 group-hover:text-red-500 transition-colors" />
-            <span className="group-hover:text-red-500 transition-colors">Sign out</span>
+            <ArrowLeftIcon className="w-4 h-4 transition-colors" />
+            <span className="transition-colors">Sign out</span>
           </button>
         </div>
       </div>
@@ -130,18 +132,18 @@ export default function Dashboard() {
         {currentIdeaId || window.location.pathname.includes('/ideas/new') ? (
           <IdeaChat />
         ) : (
-          <div className="h-full flex items-center justify-center bg-gray-50">
+          <div className="h-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
             <div className="text-center max-w-md px-4">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                 Welcome to Flowde
               </h2>
-              <p className="text-gray-600 mb-8">
+              <p className="text-gray-600 dark:text-gray-400 mb-8">
                 Transform your project ideas into visual flowcharts with AI assistance. 
                 Start by describing your project idea.
               </p>
               <button
                 onClick={handleNewIdea}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
               >
                 <PlusIcon className="w-5 h-5" />
                 Get Started

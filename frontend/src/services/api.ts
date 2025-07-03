@@ -92,11 +92,12 @@ export const ideaApi = {
     return response.data
   },
 
-  sendMessage: async (sessionId: string, userMsg: string): Promise<IdeaChatResponse> => {
+  sendMessage: async (sessionId: string, userMsg: string, skillLevel: string = 'intermediate'): Promise<IdeaChatResponse> => {
     const response = await api.post<IdeaChatResponse>('/api/idea/message', 
       { 
         session_id: sessionId,
-        user_msg: userMsg
+        user_msg: userMsg,
+        skill_level: skillLevel
       },
       { headers: { ...getAuthHeaders() } }
     )
@@ -124,6 +125,35 @@ export const ideaApi = {
     const response = await api.get(`/api/idea/sessions/${sessionId}/messages`, {
       headers: { ...getAuthHeaders() }
     })
+    return response.data
+  },
+
+  // Get spec versions for a session
+  getSpecVersions: async (sessionId: string) => {
+    const response = await api.get(`/api/idea/sessions/${sessionId}/spec-versions`, {
+      headers: { ...getAuthHeaders() }
+    })
+    return response.data
+  },
+
+  // Restore a specific version
+  restoreVersion: async (sessionId: string, versionId: string) => {
+    const response = await api.post(`/api/idea/sessions/${sessionId}/restore-version`, 
+      { version_id: versionId },
+      { headers: { ...getAuthHeaders() } }
+    )
+    return response.data
+  },
+
+  // Update spec manually
+  updateSpec: async (sessionId: string, specMarkdown: string, changeDescription?: string) => {
+    const response = await api.post(`/api/idea/sessions/${sessionId}/update-spec`, 
+      { 
+        spec_markdown: specMarkdown,
+        change_description: changeDescription
+      },
+      { headers: { ...getAuthHeaders() } }
+    )
     return response.data
   }
 }

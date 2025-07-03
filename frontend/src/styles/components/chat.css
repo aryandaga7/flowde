@@ -1,0 +1,53 @@
+/* Chat component styles */
+
+/* Changes summary color schemes */
+.change-added {
+  @apply text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/20 dark:border-green-800;
+}
+
+.change-updated {
+  @apply text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/20 dark:border-blue-800;
+}
+
+.change-refined {
+  @apply text-yellow-700 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-800;
+}
+
+.change-restructured {
+  @apply text-purple-700 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-900/20 dark:border-purple-800;
+}
+
+.change-default {
+  @apply text-gray-700 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-700;
+}
+
+/* Chat message styles */
+.chat-message {
+  @apply p-4 rounded-lg mb-4;
+}
+
+.chat-message.user {
+  @apply bg-primary-500 text-white ml-auto max-w-[80%];
+}
+
+.chat-message.assistant {
+  @apply bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700;
+}
+
+/* Persona prompt bar */
+.persona-button {
+  @apply flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors;
+}
+
+/* Skill level selector colors */
+.skill-beginner {
+  @apply text-green-600 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/20 dark:border-green-800;
+}
+
+.skill-intermediate {
+  @apply text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/20 dark:border-blue-800;
+}
+
+.skill-advanced {
+  @apply text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-900/20 dark:border-purple-800;
+} 

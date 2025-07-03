@@ -155,11 +155,8 @@ class SessionStatus(enum.Enum):
 class IdeaSession(Base):
     __tablename__ = "idea_sessions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True,
-                server_default=text("gen_random_uuid()"))
-    user_id = Column(UUID(as_uuid=True),
-                    ForeignKey("users.id", ondelete="CASCADE"),
-                    nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     title = Column(String, nullable=True)
     is_public = Column(Boolean, default=False)
     
@@ -169,13 +166,12 @@ class IdeaSession(Base):
                    default=SessionStatus.DRAFT)
     session_data = Column(JSONB, nullable=True)  # Renamed from metadata
     spec_markdown = Column(Text, nullable=True)
+    spec_json = Column(JSONB, nullable=True)  # New column for storing JSON representation
+    context_summaries = Column(JSONB, nullable=True, default=list)  # List of context summaries
     
     # Timestamps
-    created_at = Column(DateTime, nullable=False,
-                       default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False,
-                       default=datetime.datetime.utcnow,
-                       onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     user = relationship("User", back_populates="idea_sessions")
