@@ -2,6 +2,19 @@ import { create } from 'zustand'
 import type { Message, IdeaSessionState } from '../types/idea'
 import { ideaApi } from '../services/api'
 
+// Helper function to get skill level from localStorage with fallback
+const getInitialSkillLevel = (): 'beginner' | 'intermediate' | 'advanced' => {
+  try {
+    const stored = localStorage.getItem('flowde_skill_level')
+    if (stored && ['beginner', 'intermediate', 'advanced'].includes(stored)) {
+      return stored as 'beginner' | 'intermediate' | 'advanced'
+    }
+  } catch (error) {
+    console.warn('Failed to read skill level from localStorage:', error)
+  }
+  return 'intermediate' // fallback default
+}
+
 export const useIdeaSession = create<IdeaSessionState>((set, get) => ({
   messages: [],
   specMarkdown: '',
@@ -24,7 +37,7 @@ export const useIdeaSession = create<IdeaSessionState>((set, get) => ({
   
   // Phase 1: Change communication
   lastChangesMade: [],
-  skillLevel: 'intermediate',
+  skillLevel: getInitialSkillLevel(), // Initialize from localStorage
 
   setMessages: (messages) => set({ messages }),
   addMessage: (message) => 
@@ -273,7 +286,15 @@ export const useIdeaSession = create<IdeaSessionState>((set, get) => ({
   
   // Phase 1: Change communication methods
   setLastChangesMade: (changes) => set({ lastChangesMade: changes as Array<{type: 'added' | 'updated' | 'refined' | 'restructured'; section: string; description: string}> }),
-  setSkillLevel: (level) => set({ skillLevel: level }),
+  setSkillLevel: (level) => {
+    // Persist to localStorage when setting skill level
+    try {
+      localStorage.setItem('flowde_skill_level', level)
+    } catch (error) {
+      console.warn('Failed to save skill level to localStorage:', error)
+    }
+    set({ skillLevel: level })
+  },
 
   reset: () => set({ 
     messages: [], 
@@ -290,6 +311,6 @@ export const useIdeaSession = create<IdeaSessionState>((set, get) => ({
     editContent: '',
     preEditVersion: null,
     lastChangesMade: [],
-    skillLevel: 'intermediate'
+    skillLevel: getInitialSkillLevel() // Preserve user's skill level preference
   })
 })) 
